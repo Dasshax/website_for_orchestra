@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Контакты</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Contact Us</h1>
+        <nav>
+           <a href="{{ url_for('index') }}">Главная</a> |
+            <a href="{{ url_for('about') }}">Об оркестре</a> |
+            <a href="{{ url_for('support') }}">Поддержка</a> |
+            <a href="{{ url_for('contacts') }}">Контакты</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Контактная информация</h2>
+            <p>Email: info@orchestra.com</p>
+            <p>Телефон: 123456789</p>
+            <p>Адрес: ххххх</p>
+        </section>
+
+        <section>
+            <h2>Социальные сети</h2>
+            <ul>
+                <li><a href="#">Вконтакте</a></li>
+                <li><a href="#">Telegram</a></li>
+                <li><a href="#">Instagram</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Orchestra</p>
+    </footer>
+</body>
+</html>
