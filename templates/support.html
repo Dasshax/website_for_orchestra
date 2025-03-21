@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Поддержка</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Поддержи оркестр</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Главная</a> |
+            <a href="{{ url_for('about') }}">Об оркестре</a> |
+            <a href="{{ url_for('support') }}">Поддержка</a> |
+            <a href="{{ url_for('contacts') }}">Контакты</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Как можно поддержать оркестр</h2>
+            <ul>
+                <li>
+                    <h3>Пожертвуй онлайн</h3>
+                    <p>...</p>
+                    <a href="#" class="button">Пожертвуй онлайн</a>
+                </li>
+                <li>
+                    <h3>Стань участником</h3>
+                    <p>...</p>
+                    <a href="#" class="button">Стань участником</a>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Orchestra</p>
+    </footer>
+</body>
+</html>
