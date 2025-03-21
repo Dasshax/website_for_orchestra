@@ -12,10 +12,10 @@ def index():
 
     with open('data/news_articles.json', encoding='utf-8') as na:
         f1 = na.read()
-        NA = json.loads(f1)
+        news_articles = json.loads(f1)
     return render_template('index.html',
                            afisha=afisha_data,
-                           news=NA)
+                           news=news_articles)
 
 
 @app.route('/support')
