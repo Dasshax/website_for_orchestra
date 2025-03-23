@@ -1,23 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
+from .db_session import SqlAlchemyBase
 
-
-class Admin():
-    __tablename__ = 'admins'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(50), unique=True, nullable=False)
-    email = Column(String(120), unique=True, nullable=False)
-    password = Column(String(60), nullable=False)
-
-
-class Article():
-    __tablename__ = 'articles'
-    id = Column(Integer, primary_key=True)
-    title = Column(String(200), nullable=False)
-    content = Column(Text, nullable=False)
-    date = Column(String(20), nullable=False)
+import datetime
 
 
 class RegistrationForm(FlaskForm):
@@ -34,9 +21,4 @@ class EnterForm(FlaskForm):
     submit = SubmitField('Login')
 
 
-class Admins:
-    pass
 
-
-class Articles:
-    pass
