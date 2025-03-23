@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Актуальные мероприятия | Name of orchestra{% endblock %}
+
+{% block content %}
+
+<section id="afisha">
+    <h2>Актуальные мероприятия</h2>
+    <div class="afisha-list">
+        {% for event in afisha %}
+        <div class="afisha-item">
+            <img src="" alt="{{ event.title }}">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.description }}</p>
+            <a href="{{ event.ticket_link }}">Билеты</a>
+            <p>Место: {{ event.location }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+{% endblock %}
