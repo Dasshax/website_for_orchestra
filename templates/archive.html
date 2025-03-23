@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Архив концертов | Name of orchestra{% endblock %}
+
+{% block content %}
+    <h1>Архив концертов</h1>
+
+    <section id="concert-archive">
+        {% if concerts %}
+            {% for concert in concerts %}
+                <div class="concert-item">
+                    <h2>{{ concert.title }}</h2>
+                    <img src="" alt="{{ concert.title }}" class="afisha">
+                    <div class="concert-details">
+                        <p><strong>Время:</strong> {{ concert.date_time }}</p>
+                        <p><strong>Место:</strong> {{ concert.location }}</p>
+
+                        {% if concert.audio_file %}
+                            <audio controls>
+                                <source src="{{ url_for('static', filename=concert.audio_file) }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        {% endif %}
+
+                        {% if concert.video_file %}
+                           <video width="320" height="240" controls>
+                                <source src="{{ url_for('static', filename=concert.video_file) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>В архиве пока нет концертов.</p>
+        {% endif %}
+    </section>
+{% endblock %}

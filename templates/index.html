@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная | Name of orchestra{% endblock %}
+
+{% block content %}
+
+<section id="afisha">
+    <h2>Актуальные мероприятия</h2>
+    <div class="afisha-list">
+        {% for event in afisha %}
+        <div class="afisha-item">
+            <img src="" alt="{{ event.title }}">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.description }}</p>
+            <a href="{{ event.ticket_link }}">Билеты</a>
+            <p>Место: {{ event.location }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="news">
+    <h2>Новости и статьи</h2>
+    <ul class="news-list">
+        {% for article in news %}
+        <li>
+            <h3>{{ article.title }}</h3>
+            <p>{{ article.content }}</p>
+            <small>{{ article.date }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section id="support-cta">
+    <h2>Поддержите оркестр</h2>
+    <a href="{{ url_for('support') }}" class="button">Сделать пожертвование</a>
+</section>
+
+
+{% endblock %}
