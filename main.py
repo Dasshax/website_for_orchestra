@@ -6,6 +6,7 @@ import json
 app = Flask(__name__)
 
 @app.route('/')
+@app.route('/index')
 def index():
 
     with open('data/actual_events.json', encoding='utf-8') as events:
@@ -16,7 +17,7 @@ def index():
         f1 = na.read()
         NA = json.loads(f1)
 
-    return render_template('index.html',
+    return render_template('./index.html',
                            afisha=afisha_data,
                            news=NA)
 
