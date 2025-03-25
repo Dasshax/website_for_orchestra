@@ -3,22 +3,19 @@ from data import db_session
 import json
 
 
-with open('data/actual_events.json', encoding='utf-8') as events:
-    f = events.read()
-    afisha_data = json.loads(f)
-
-with open('data/news_articles.json', encoding='utf-8') as na:
-    f1 = na.read()
-    NA = json.loads(f1)
-
-with open('data/concerts.json', encoding='utf-8') as conc:
-    f = conc.read()
-    concerts = json.loads(f)
-
 app = Flask(__name__)
 
 @app.route('/')
 def index():
+
+    with open('data/actual_events.json', encoding='utf-8') as events:
+        f = events.read()
+        afisha_data = json.loads(f)
+
+    with open('data/news_articles.json', encoding='utf-8') as na:
+        f1 = na.read()
+        NA = json.loads(f1)
+
     return render_template('index.html',
                            afisha=afisha_data,
                            news=NA)
@@ -37,6 +34,9 @@ def contacts():
 
 @app.route('/archive')
 def archive():
+    with open('data/concerts.json', encoding='utf-8') as conc:
+        f = conc.read()
+        concerts = json.loads(f)
     return render_template('archive.html', concerts=concerts)
 
 @app.route('/actual_events')
