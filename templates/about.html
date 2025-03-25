@@ -1,34 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Об оркестре</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Об оркестре</h1>
-        <nav>
-            <a href="{{ url_for('index') }}">Главная</a> |
-            <a href="{{ url_for('about') }}">Об оркестре</a> |
-            <a href="{{ url_for('support') }}">Поддержка</a> |
-            <a href="{{ url_for('contacts') }}">Контакты</a>
-        </nav>
-    </header>
+{% extends 'base.html' %}
 
-    <main>
-        <section>
-            <h2>Наша история</h2>
-            <p>...</p>
-        </section>
+{% block title %}Об оркестре | Name of orchestra{% endblock %}
 
-        <section>
-            <h2>Наша миссия</h2>
-            <p>...</p>
-        </section>
-    </main>
+{% block content %}
+<section>
+    <h2>Наша история</h2>
+    <p>...</p>
+</section>
 
-    <footer>
-        <p>&copy; 2025 Orchestra</p>
-    </footer>
-</body>
-</html>
+<section>
+    <h2>Наша миссия</h2>
+    <p>...</p>
+</section>
+{% endblock %}
