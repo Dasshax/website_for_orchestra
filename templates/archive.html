@@ -10,7 +10,7 @@
             {% for concert in concerts %}
                 <div class="concert-item">
                     <h2>{{ concert.title }}</h2>
-                    <img src="" alt="{{ concert.title }}" class="afisha">
+                    <img src="{{ concert.image }}" alt="{{ concert.title }}" class="afisha">
                     <div class="concert-details">
                         <p><strong>Время:</strong> {{ concert.date_time }}</p>
                         <p><strong>Место:</strong> {{ concert.location }}</p>

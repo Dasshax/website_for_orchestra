@@ -44,8 +44,13 @@ def archive():
 def actual_events():
     return render_template('actual_events.html')
 
+
 db_session.global_init("db/users.db")
-db_session.global_init("db/posts.db")
+
+
+@app.route('/my_profile')
+def my_profile():
+    return render_template('base.html')
 
 if __name__ == '__main__':
     app.run(port=8080,  host='127.0.0.1')
