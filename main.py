@@ -1,9 +1,13 @@
 from flask import Flask, render_template
 from data import db_session
 import json
+from data.users import Users
+import datetime
 
 
 app = Flask(__name__)
+db_session.global_init("db/users.db")
+
 
 @app.route('/')
 @app.route('/index')
@@ -45,12 +49,26 @@ def actual_events():
     return render_template('actual_events.html')
 
 
-db_session.global_init("db/users.db")
 
 
-@app.route('/my_profile')
-def my_profile():
-    return render_template('base.html')
+@app.route('/profile/<int:profile_id>')
+def profile(profile_id):
+    profile_id = int(profile_id)
+    session = db_session.create_session()
+    user = session.query(Users).filter(Users.id == profile_id).first()
+    return render_template('profile.html', name=user.username)
+
+@app.route('/test')
+def test():
+    session = db_session.create_session()
+    new = Users()
+    new.id = 3
+    new.username = "лох1"
+    new.email = "tcfvbjh1h"
+    new.password_hash = "injpernij"
+    session.add(new)
+    session.commit()
+    return "test"
 
 if __name__ == '__main__':
     app.run(port=8080,  host='127.0.0.1')

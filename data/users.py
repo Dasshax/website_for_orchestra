@@ -22,7 +22,9 @@ class Users(SqlAlchemyBase):
     profile_image = Column(String(200))
     bio = Column(Text)
 
-    posts = orm.relationship("Posts", back_populates='users')
+    _posts = orm.relationship("Posts", backref='users')
+    _videos = orm.relationship("Videos", backref='users')
+    _images = orm.relationship("Images", backref='users')
 
     def __repr__(self):
         return f"<Users(username='{self.username}', email='{self.email}')>"

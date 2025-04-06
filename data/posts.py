@@ -11,7 +11,7 @@ class Posts(SqlAlchemyBase):
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
     publication_date = Column(DateTime, default=datetime.datetime.now)
-    author_id = Column(Integer, ForeignKey('users.id'))
+    author_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     category = Column(String(50))
     image = Column(String(200))
     is_published = Column(Boolean, default=False)
