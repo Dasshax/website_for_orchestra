@@ -56,7 +56,10 @@ def profile(profile_id):
     profile_id = int(profile_id)
     session = db_session.create_session()
     user = session.query(Users).filter(Users.id == profile_id).first()
-    return render_template('profile.html', name=user.username)
+    if user:
+        return render_template('profile.html', name=user.username)
+    else:
+        return render_template('nt_exist.html', id=profile_id, type="Пользователя")
 
 @app.route('/test')
 def test():
