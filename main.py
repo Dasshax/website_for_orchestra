@@ -3,6 +3,7 @@ from data import db_session
 import json
 from data.users import Users
 import datetime
+from data.images import Images
 
 
 app = Flask(__name__)
@@ -12,18 +13,26 @@ db_session.global_init("db/users.db")
 @app.route('/')
 @app.route('/index')
 def index():
-
-    with open('data/actual_events.json', encoding='utf-8') as events:
+    try:
+        events = open('data/actual_events.json', encoding='utf-8')
         f = events.read()
         afisha_data = json.loads(f)
 
-    with open('data/news_articles.json', encoding='utf-8') as na:
+        na = open('data/news_articles.json', encoding='utf-8')
         f1 = na.read()
         NA = json.loads(f1)
 
-    return render_template('./index.html',
-                           afisha=afisha_data,
-                           news=NA)
+        session = db_session.create_session()
+        for event in afisha_data:
+            print(event)
+            image = session.query(Images).filter(Images.id == event['image']).first()
+            event['image'] = f"static/images/{image.file_name}"
+        return render_template('./index.html',
+                               afisha=afisha_data,
+                               news=NA)
+    except Exception as err:
+        print(err)
+        return render_template("error.html")
 
 @app.route('/support')
 def support():
@@ -64,13 +73,6 @@ def profile(profile_id):
 @app.route('/test')
 def test():
     session = db_session.create_session()
-    new = Users()
-    new.id = 3
-    new.username = "лох1"
-    new.email = "tcfvbjh1h"
-    new.password_hash = "injpernij"
-    session.add(new)
-    session.commit()
     return "test"
 
 if __name__ == '__main__':

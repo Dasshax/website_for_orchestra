@@ -2,7 +2,7 @@
     {
         "title": "Концерт под звездами",
         "description": "Вечер классической музыки под открытым небом.",
-        "image": "static/images/concert1.jpg",
+        "image": "1",
         "ticket_link": "#",
         "location": "ВДНХ"
 
@@ -10,7 +10,7 @@
     {
         "title": "Праздничный концерт популярной музыки",
         "description": "Фестивальный концерт с любимыми праздничными мелодиями.",
-        "image": "static/images/concert2.jpg",
+        "image": "2",
         "ticket_link": "#",
         "location": "Москва сити"
     }
