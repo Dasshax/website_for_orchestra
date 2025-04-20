@@ -4,15 +4,15 @@
         "afisha_image": "images/concert1_afisha.jpg",
         "date_time": "2023-12-15 19:00",
         "location": "Большой зал консерватории",
-        "audio_file": "audio/concert1.mp3",
-        "video_file": "videos/concert1.mp4"
+        "audio_file": "1",
+        "video_file": "1"
     },
     {
         "title": "Вечер камерной музыки",
         "afisha_image": "images/concert2_afisha.jpg",
         "date_time": "2024-01-20 18:00",
         "location": "Малый зал филармонии",
-        "audio_file": "audio/concert2.mp3",
-        "video_file": "videos/concert2.mp4"
+        "audio_file": "2",
+        "video_file": "2"
     }
 ]

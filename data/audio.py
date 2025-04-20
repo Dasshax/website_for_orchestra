@@ -3,8 +3,8 @@ from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
 
 
-class Videos(SqlAlchemyBase):
-    __tablename__ = 'videos'
+class Audios(SqlAlchemyBase):
+    __tablename__ = 'audios'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     file_name = Column(String(50), unique=True, nullable=False)
@@ -14,4 +14,4 @@ class Videos(SqlAlchemyBase):
 
     user = orm.relationship('Users')
     def __repr__(self):
-        return f"<Video(file_name='{self.file_name}', date='{self.date}')>"
+        return f"<Audio(file_name='{self.file_name}', date='{self.date}')>"

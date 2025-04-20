@@ -18,6 +18,13 @@
             <a href="{{ url_for('actual_events') }}">Актуальные мероприятия</a>
             <a href="{{ url_for('support') }}">Поддержка</a>
             <a href="{{ url_for('contacts') }}">Контакты</a>
+            {% if not_registered == 1 %}
+            <a href="{{ url_for('registration') }}" class="button">Регистрация</a>
+            <a href="{{ url_for('enter') }}" class="button">Вход</a>
+            {% elif not_registered == 0 %}
+            <a href="{{ url_for('my_profile') }}" class="button">Мой профиль</a>
+            <img src="/static/images/billy.jpg" width="50" height="50" alt="1">
+            {% endif %}
         </nav>
     </div>
 </header>

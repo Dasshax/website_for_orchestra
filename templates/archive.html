@@ -17,14 +17,14 @@
 
                         {% if concert.audio_file %}
                             <audio controls>
-                                <source src="{{ url_for('static', filename=concert.audio_file) }}" type="audio/mpeg">
+                                <source src="{{ concert.audio_file }}" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
                         {% endif %}
 
                         {% if concert.video_file %}
                            <video width="320" height="240" controls>
-                                <source src="{{ url_for('static', filename=concert.video_file) }}" type="video/mp4">
+                                <source src="{{ concert.video_file }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                         {% endif %}

@@ -1,10 +1,11 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from data import db_session
 import json
-from data.users import Users
+from data.users import Users, CONVERT_TO_RUSSIAN
 import datetime
 from data.images import Images
-
+from data.videos import Videos
+from data.audio import Audios
 
 app = Flask(__name__)
 db_session.global_init("db/users.db")
@@ -24,56 +25,120 @@ def index():
 
         session = db_session.create_session()
         for event in afisha_data:
-            print(event)
             image = session.query(Images).filter(Images.id == event['image']).first()
             event['image'] = f"static/images/{image.file_name}"
         return render_template('./index.html',
                                afisha=afisha_data,
-                               news=NA)
+                               news=NA, not_registered=1)
+        a = 1 / 0
     except Exception as err:
-        print(err)
-        return render_template("error.html")
+        return render_template("error.html", err=err, not_registered=0)
 
 @app.route('/support')
 def support():
-    return render_template('support.html')
+    try:
+        return render_template('support.html', not_registered=0)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=0)
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    try:
+        return render_template('about.html', not_registered=0)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=0)
 
 @app.route('/contacts')
 def contacts():
-    return render_template('contacts.html')
+    try:
+        return render_template('contacts.html', not_registered=0)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=0)
 
 @app.route('/archive')
 def archive():
-    with open('data/concerts.json', encoding='utf-8') as conc:
+    try:
+        conc = open('data/concerts.json', encoding='utf-8')
         f = conc.read()
         concerts = json.loads(f)
-    return render_template('archive.html', concerts=concerts)
+        session = db_session.create_session()
+        for event in concerts:
+            video = session.query(Videos).filter(Videos.id == event['video_file']).first()
+            try:
+                event['video_file'] = f"static/videos/{video.file_name}"
+            except Exception as err:
+                print(err)
+            audio = session.query(Audios).filter(Audios.id == event['audio_file']).first()
+            try:
+                event['audio_file'] = f"static/audio/{audio.file_name}"
+            except Exception as err:
+                print(err)
+        return render_template('archive.html', concerts=concerts, not_registered=0)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=0)
 
 @app.route('/actual_events')
 def actual_events():
-    return render_template('actual_events.html')
+    try:
+        return render_template('actual_events.html', not_registered=0)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=0)
 
 
 
 
 @app.route('/profile/<int:profile_id>')
 def profile(profile_id):
-    profile_id = int(profile_id)
-    session = db_session.create_session()
-    user = session.query(Users).filter(Users.id == profile_id).first()
-    if user:
-        return render_template('profile.html', name=user.username)
-    else:
-        return render_template('nt_exist.html', id=profile_id, type="Пользователя")
+    try:
+        profile_id = int(profile_id)
+        session = db_session.create_session()
+        user = session.query(Users).filter(Users.id == profile_id).first()
+        data = []
+        if user:
+            for key in CONVERT_TO_RUSSIAN.keys():
+                exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
+            images = session.query(Images).filter(Images.author_id == profile_id).all()
+            data1 = []
+            for i in images:
+                data1.append((i.file_name, i.id, i.date))
+
+            videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
+            data2 = []
+            for i in videos:
+                data2.append((i.file_name, i.id, i.date))
+
+            audio = session.query(Audios).filter(Audios.author_id == profile_id).all()
+            data3 = []
+
+            for i in audio:
+                data3.append((i.file_name, i.id, i.date))
+            return render_template('profile.html', name=user.username, not_registered=0,
+                                   user_information=data, profile_image=user.profile_image, image_information=data1,
+                                   video_information=data2, audio_information=data3)
+        else:
+            return render_template('nt_exist.html', id=profile_id, type="Пользователя",
+                                   not_registered=0)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=0)
 
 @app.route('/test')
 def test():
     session = db_session.create_session()
     return "test"
+
+@app.route('/registration')
+def registration():
+    return "asdfghj"
+
+
+@app.route('/enter')
+def enter():
+    return "enter"
+
+@app.route('/my_profile')
+def my_profile():
+    return redirect("profile/1")
+
 
 if __name__ == '__main__':
     app.run(port=8080,  host='127.0.0.1')
