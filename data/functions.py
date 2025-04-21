@@ -1,18 +1,9 @@
-def load_image(im):
-    pass
+import hashlib
+import re
 
 
-def load_mp3(file):
-    pass
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-
-def load_mp4(file):
-    pass
-
-
-def play(file):
-    pass
-
-
-def stop(file):
-    pass
+def check_password(password, hashed_password):
+    return hash_password(password) == hashed_password

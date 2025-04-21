@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Вход | Name of orchestra{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>Вход</h2>
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control") }}
+                {% if form.username.errors %}
+                    <ul class="errors">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
+                {% if form.password.class=="form-label" %}
+                    {{ form.remember() }}
+                {% endif %}
+            </div>
+            <p>{{ form.submit(class="button") }}</p>
+        </form>
+    </div>
+{% endblock %}
