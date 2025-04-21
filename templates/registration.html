@@ -33,12 +33,28 @@
             {{ form.confirm_password.label }}<br>
             {{ form.confirm_password(class="form-control", type="password") }}<br>
             {% for error in form.confirm_password.errors %}
-                <h4 style="color:red;">{{ error }}</h4>
+                <h4 style="color:red;size:10px;">{{ error }}</h4>
+            {% endfor %}
+        <p>
+            {{ form.first_name.label }}<br>
+            {{ form.first_name(class="form-control") }}<br>
+            {% for error in form.first_name.errors %}
+                <h4 style="color:red;size:10px;">{{ error }}</h4>
+            {% endfor %}
+        <p>
+            {{ form.last_name.label }}<br>
+            {{ form.last_name(class="form-control") }}<br>
+            {% for error in form.last_name.errors %}
+                <h4 style="color:red;size:10px;">{{ error }}</h4>
             {% endfor %}
         <p>
             {{ form.bio.label }}<br>
             {{ form.bio(class="form-control", type="username") }}<br>
             {% for error in form.bio.errors %}
+                <h4 style="color:red;">{{ error }}</h4>
+            {% endfor %}
+        <p>
+            {% for error in additional_errors %}
                 <h4 style="color:red;">{{ error }}</h4>
             {% endfor %}
         <p>{{ form.submit(type="submit", class="button") }}</p>

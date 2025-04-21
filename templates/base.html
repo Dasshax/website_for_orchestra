@@ -18,7 +18,7 @@
             <a href="{{ url_for('actual_events') }}">Актуальные мероприятия</a>
             <a href="{{ url_for('support') }}">Поддержка</a>
             <a href="{{ url_for('contacts') }}">Контакты</a>
-            {% if not_registered == 1 %}
+            {% if not_registered != 0 %}
             <a href="{{ url_for('registration') }}" class="button">Регистрация</a>
             <a href="{{ url_for('enter') }}" class="button">Вход</a>
             {% elif not_registered == 0 %}

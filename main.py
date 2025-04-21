@@ -7,6 +7,8 @@ from data.images import Images
 from data.videos import Videos
 from data.audio import Audios
 from data.classes import RegistrationForm
+from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
 
 app = Flask(__name__)
 db_session.global_init("db/users.db")
@@ -114,8 +116,13 @@ def profile(profile_id):
 
             for i in audio:
                 data3.append((i.file_name, i.id, i.date))
+            if user.profile_image:
+                print()
+                image_profile = user.profile_image
+            else:
+                image_profile = "billy.jpg"
             return render_template('profile.html', name=user.username, not_registered=0,
-                                   user_information=data, profile_image=user.profile_image, image_information=data1,
+                                   user_information=data, profile_image=image_profile, image_information=data1,
                                    video_information=data2, audio_information=data3)
         else:
             return render_template('nt_exist.html', id=profile_id, type="Пользователя",
@@ -131,9 +138,34 @@ def test():
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
     form = RegistrationForm()
+    errors = []
     if form.validate_on_submit():
-        print(1)
-    return render_template('registration.html', form=form)
+        session = db_session.create_session()
+        new_user_name = form.username.data
+        users = session.query(Users).filter(Users.username == new_user_name).first()
+        if users:
+            errors.append("Пользователь с таким именем уже существует.")
+        else:
+            new_user_email = form.email.data
+            users = session.query(Users).filter(Users.email == new_user_email).first()
+            if users:
+                errors.append("Пользователь с такой почтой уже существует.")
+            else:
+                new_user = Users()
+                new_user.username = new_user_name
+                new_user.email = new_user_email
+                new_user.password_hash = generate_password_hash(form.password.data)
+                new_user.first_name = form.first_name.data
+                new_user.last_name = form.last_name.data
+                new_user.bio = form.bio.data
+
+                last_user =  session.query(Users).order_by(Users.id.desc()).first()
+                new_user.id = last_user.id + 1
+
+                session.add(new_user)
+                session.commit()
+                return redirect("/")
+    return render_template('registration.html', form=form, additional_errors=errors)
 
 
 @app.route('/enter')
