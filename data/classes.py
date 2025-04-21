@@ -8,17 +8,18 @@ import datetime
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Имя пользователя', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
+    username = StringField('Имя пользователя:', validators=[DataRequired()])
+    email = StringField('Email:', validators=[DataRequired(), Email()])
+    password = PasswordField('Пароль:', validators=[DataRequired()])
+    confirm_password = PasswordField('Подтвердите пароль:', validators=[DataRequired(), EqualTo('password')])
+    bio = StringField('О себе: ', validators=[])
+    submit = SubmitField('Регистрация')
 
 
 class EnterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    username = StringField('Имя пользователя', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    submit = SubmitField('Вход')
 
 
 

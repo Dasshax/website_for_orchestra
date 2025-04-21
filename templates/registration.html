@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Поддержка | Name of orchestra{% endblock %}
+
+{% block content %}
+<h2>Регистрация</h2>
+    <form action="" method="post" novalidate>
+        <div>
+            {{ form.hidden_tag()}}
+        </div>
+        <p>
+            {{form.username.label() }}<br>
+            {{ form.username(class="form-control", type="name") }}<br>
+            {% for error in form.username.errors %}
+                <h4 style="color:red;">{{ error }}</h4>
+            {% endfor %}
+
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(class="form-control") }}<br>
+            {% for error in form.email.errors %}
+                <h4 style="color:red;">{{ error }}</h4>
+            {% endfor %}
+
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(class="form-control", type="password") }}<br>
+            {% for error in form.password.errors %}
+                <h4 style="color:red;">{{ error }}</h4>
+            {% endfor %}
+
+        <p>
+            {{ form.confirm_password.label }}<br>
+            {{ form.confirm_password(class="form-control", type="password") }}<br>
+            {% for error in form.confirm_password.errors %}
+                <h4 style="color:red;">{{ error }}</h4>
+            {% endfor %}
+        <p>
+            {{ form.bio.label }}<br>
+            {{ form.bio(class="form-control", type="username") }}<br>
+            {% for error in form.bio.errors %}
+                <h4 style="color:red;">{{ error }}</h4>
+            {% endfor %}
+        <p>{{ form.submit(type="submit", class="button") }}</p>
+    </form>
+{% endblock %}

@@ -6,10 +6,12 @@ import datetime
 from data.images import Images
 from data.videos import Videos
 from data.audio import Audios
+from data.classes import RegistrationForm
 
 app = Flask(__name__)
 db_session.global_init("db/users.db")
 
+app.config['SECRET_KEY'] = 'FROLOV_NIKITA_LOX'
 
 @app.route('/')
 @app.route('/index')
@@ -126,9 +128,12 @@ def test():
     session = db_session.create_session()
     return "test"
 
-@app.route('/registration')
+@app.route('/registration', methods=['GET', 'POST'])
 def registration():
-    return "asdfghj"
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        print(1)
+    return render_template('registration.html', form=form)
 
 
 @app.route('/enter')
