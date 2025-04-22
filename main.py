@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect
 from werkzeug.utils import secure_filename
-
+import os
 from data import db_session
 import json
 from data.users import Users, CONVERT_TO_RUSSIAN
@@ -132,46 +132,43 @@ def actual_events():
 
 @app.route('/profile/<int:profile_id>')
 def profile(profile_id):
-    try:
-        profile_id = int(profile_id)
-        session = db_session.create_session()
-        user = session.query(Users).filter(Users.id == profile_id).first()
-        data = []
-        if user:
-            for key in CONVERT_TO_RUSSIAN.keys():
-                exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
-            images = session.query(Images).filter(Images.author_id == profile_id).all()
-            data1 = []
-            for i in images:
-                data1.append((i.file_name, i.id, i.date))
+    profile_id = int(profile_id)
+    session = db_session.create_session()
+    user = session.query(Users).filter(Users.id == profile_id).first()
+    data = []
+    if user:
+        for key in CONVERT_TO_RUSSIAN.keys():
+            exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
+        images = session.query(Images).filter(Images.author_id == profile_id).all()
+        data1 = []
+        for i in images:
+            if i.operation_type == "EXIST":
+                data1.append((i.file_name, i.id, i.date, i.operation_type))
+        videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
+        data2 = []
+        for i in videos:
+            data2.append((i.file_name, i.id, i.date))
 
-            videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
-            data2 = []
-            for i in videos:
-                data2.append((i.file_name, i.id, i.date))
+        audio = session.query(Audios).filter(Audios.author_id == profile_id).all()
+        data3 = []
 
-            audio = session.query(Audios).filter(Audios.author_id == profile_id).all()
-            data3 = []
-
-            for i in audio:
-                data3.append((i.file_name, i.id, i.date))
-            if user.profile_image:
-                print()
-                image_profile = user.profile_image
-            else:
-                image_profile = "billy.jpg"
-            this_user = False
+        for i in audio:
+            data3.append((i.file_name, i.id, i.date))
+        if user.profile_image:
+            image_profile = user.profile_image
+        else:
+            image_profile = "billy.jpg"
+        this_user = False
+        if current_user.is_authenticated:
             if current_user.id == user.id:
                 this_user = True
-            return render_template('profile.html', name=user.username, not_registered=get_registred_id(),
-                                   user_information=data, profile_image=image_profile, image_information=data1,
-                                   video_information=data2, audio_information=data3, this_user=this_user)
-        else:
-            return render_template('nt_exist.html', id=profile_id, type="Пользователя",
-                                   not_registered=get_registred_id(), profile_image=get_registred_image())
-    except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(),
-                               profile_image=get_registred_image())
+        return render_template('profile.html', name=user.username, not_registered=get_registred_id(),
+                               user_information=data, profile_image=image_profile, image_information=data1,
+                               video_information=data2, audio_information=data3, this_user=this_user, user_id=profile_id,
+                               is_curr_user_admin=current_user.is_admin)
+    else:
+        return render_template('nt_exist.html', id=profile_id, type="Пользователя",
+                               not_registered=get_registred_id(), profile_image=get_registred_image())
 
 
 @app.route('/test')
@@ -259,27 +256,93 @@ def logout():
     logout_user()
     return redirect("/")
 
+
+@app.route('/delete_from_<string:redirto>/<string:typ>/<int:del_id>')
+@login_required
+def delete_from(redirto, typ, del_id):
+    session = db_session.create_session()
+    redirto = str(redirto)
+    if typ == "image":
+        image = session.query(Images).filter(Images.id == del_id).first()
+        if image:
+            if (image.author_id == current_user.id) or current_user.is_admin:
+                image.operation_type = "DELETED"
+                try:
+                    os.remove('static/images/' + image.file_name)
+                except Exception as err:
+                    print(err)
+    if typ == "video":
+        video = session.query(Videos).filter(Videos.id == del_id).first()
+        if video:
+            if (video.author_id == current_user.id) or current_user.is_admin:
+                video.operation_type = "DELETED"
+                try:
+                    os.remove('static/videos/' + video.file_name)
+                except Exception as err:
+                    print(err)
+    if typ == "audio":
+        audio = session.query(Audios).filter(Audios.id == del_id).first()
+        if audio:
+            if (audio.author_id == current_user.id) or current_user.is_admin:
+                audio.operation_type = "DELETED"
+                try:
+                    os.remove('static/audio/' + video.file_name)
+                except Exception as err:
+                    print(err)
+
+    session.commit()
+
+    if "profile" in redirto:
+        past = redirto[redirto.find("_") + 1:]
+
+        return redirect(f"/profile/{past}")
+
+
 @app.route('/load/image/<type>', methods=['GET', 'POST'])
 @login_required
 def load_image(type):
-    form = UploadForm()
-    errors = []
-    form_title = ""
-    if type == "prf":
-        form_title = "профиля"
-    if form.validate_on_submit():
-        filename = secure_filename(form.file.data.filename)
-        form.file.data.save('static/images/' + form.file.data.filename)
+    try:
+        form = UploadForm()
+        errors = []
         session = db_session.create_session()
-        user = session.query(Users).filter(Users.id == current_user.id).first()
-        if user:
-            user.profile_image = form.file.data.filename
-            session.commit()
-            return redirect("/my_profile")
+        form_title = ""
+        if type == "prf":
+            form_title = "профиля"
+        if form.validate_on_submit():
+            print(form.file.data.filename)
+            images = session.query(Images).filter(Images.file_name == form.file.data.filename,
+                                                  Images.operation_type == "Exist").first()
+            if not images:
+                form.file.data.save('static/images/' + form.file.data.filename)
+                user = session.query(Users).filter(Users.id == current_user.id).first()
+                if user:
+                    if user.profile_image:
+                        image = session.query(Images).filter(Images.file_name == user.profile_image).first()
+                        if image:
+                            image.operation_type = "DELETED"
+                            try:
+                                os.remove('static/images/' + user.profile_image)
+                            except Exception as err:
+                                print(err)
+                    last_image = session.query(Images).order_by(Images.id.desc()).first()
+                    image = Images()
+                    image.id = last_image.id + 1
+                    image.file_name = form.file.data.filename
+                    image.operation_type = "Exist"
+                    image.date = (str(datetime.date.today()) + " " + str(datetime.datetime.now().strftime("%H:%M:%S")))
+                    image.author_id = user.id
+                    session.merge(image)
+                    user.profile_image = form.file.data.filename
+                    session.commit()
+                    return redirect("/my_profile")
+            else:
+                errors.append("Изображение с таким именем уже существует.")
 
-    return render_template("load_image.html", form=form, additional_errors=errors, not_registered=get_registred_id(),
-                           profile_image=get_registred_image(), title = form_title)
-
+        return render_template("load_image.html", form=form, additional_errors=errors, not_registered=get_registred_id(),
+                               profile_image=get_registred_image(), title=form_title)
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')

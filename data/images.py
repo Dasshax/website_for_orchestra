@@ -7,7 +7,7 @@ class Images(SqlAlchemyBase):
     __tablename__ = 'images'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    file_name = Column(String(50), unique=True, nullable=False)
+    file_name = Column(String(50), unique=False, nullable=False)
     operation_type = Column(String(50), nullable=False)
     date = Column(String(50), unique=False, nullable=False)
     author_id = Column(Integer, ForeignKey('users.id'), nullable=True)

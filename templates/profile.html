@@ -13,7 +13,7 @@
         <tr>
             <td>Изображение профиля: </td>
             <td>
-                <img src="{{ '/static/images/' + profile_image}}" width="50" height="50" alt="1">
+                <img src="{{ '/static/images/' + profile_image}}" width="100" height="100" alt="1">
             </td>
             {% if this_user %}
             <td>
@@ -35,9 +35,9 @@
     <h3>Загруженные материалы</h3>
     {% if image_information %}
     <h4>Изображния</h4>
-    {% for image, id, date in image_information %}
+    {% for image, id, date, sost in image_information %}
         <img src="{{ '/static/images/' + image }}" width="100" height="100" alt="1">
-        <table>
+        <table style="margin-bottom: 20px">
         <tr>
             <td>Имя: </td>
             <td>{{ image }}</td>
@@ -50,7 +50,15 @@
             <td>Дата загрузки: </td>
             <td>{{ date }}</td>
         </tr>
+        <tr>
+            <td>Состояние: </td>
+            <td>{{ sost }}</td>
+        </tr>
         </table>
+        {% if this_user or is_curr_user_admin %}
+            <a href= {{ "/delete_from_profile_" + user_id|string + "/image/" + id|string }} class="button">Удалить</a>
+        {% endif %}
+        <p></p>
     {% endfor %}
     {% endif %}
     {% if video_information %}
@@ -60,7 +68,7 @@
                                 <source src="{{ '/static/videos/' + video }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
-        <table>
+        <table style="margin-bottom: 20px">
         <tr>
             <td>Имя: </td>
             <td>{{ video }}</td>
@@ -74,6 +82,10 @@
             <td>{{ date }}</td>
         </tr>
         </table>
+        {% if this_user or is_curr_user_admin %}
+            <a href= {{ "/delete_from_profile_" + user_id|string + "/video/" + id|string }} class="button">Удалить</a>
+        {% endif %}
+        <p></p>
     {% endfor %}
     {% endif %}
     {% if audio_information %}
@@ -83,7 +95,7 @@
              <source src="{{ '/static/audio/' + audio }}" type="audio/mpeg">
              Your browser does not support the audio element.
          </audio>
-        <table>
+        <table style="margin-bottom: 20px">
         <tr>
             <td>Имя: </td>
             <td>{{ audio }}</td>
@@ -97,6 +109,10 @@
             <td>{{ date }}</td>
         </tr>
         </table>
+        {% if this_user or is_curr_user_admin %}
+            <a href= {{ "/delete_from_profile_" + user_id|string + "/audio/" + id|string }} class="button">Удалить</a>
+        {% endif %}
+        <p></p>
     {% endfor %}
     {% endif %}
 </section>

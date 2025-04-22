@@ -12,6 +12,10 @@
         <h4 style="color:red;">{{ error }}</h4>
     {% endfor %}
     <p>{{ form.submit(type="submit", class="button") }}</p>
+    <p>
+        {% for error in additional_errors %}
+            <h4 style="color:red;">{{ error }}</h4>
+        {% endfor %}
 </form>
 </section>
 
