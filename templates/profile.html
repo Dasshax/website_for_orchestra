@@ -15,7 +15,11 @@
             <td>
                 <img src="{{ '/static/images/' + profile_image}}" width="50" height="50" alt="1">
             </td>
-
+            {% if this_user %}
+            <td>
+                <a href="/load/image/prf" class="button">Изменить.</a>
+            </td>
+            {% endif %}
         </tr>
     </table>
     <table>
@@ -26,6 +30,8 @@
         </tr>
         {% endfor %}
     </table>
+
+
     <h3>Загруженные материалы</h3>
     {% if image_information %}
     <h4>Изображния</h4>

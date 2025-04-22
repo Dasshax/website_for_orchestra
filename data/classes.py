@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from flask_wtf.file import FileRequired, FileAllowed
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo
 
 
@@ -24,4 +25,8 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Вход')
 
 
+class UploadForm(FlaskForm):
+    file = FileField(validators=[FileRequired(), FileAllowed(
+        ['jpg', 'png'], 'Используйте следующие форматы: jpg, png')])
+    submit = SubmitField('Загрузить')
 

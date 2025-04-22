@@ -1,4 +1,6 @@
 from flask import Flask, render_template, redirect
+from werkzeug.utils import secure_filename
+
 from data import db_session
 import json
 from data.users import Users, CONVERT_TO_RUSSIAN
@@ -6,7 +8,7 @@ import datetime
 from data.images import Images
 from data.videos import Videos
 from data.audio import Audios
-from data.classes import RegistrationForm, LoginForm
+from data.classes import RegistrationForm, LoginForm, UploadForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
@@ -18,12 +20,14 @@ login_manager.init_app(app)
 
 app.config['SECRET_KEY'] = 'FROLOV_NIKITA_LOX'
 
+
 def get_registred_id():
     if current_user.is_authenticated:
         return current_user.id
     else:
         print(1)
         return 0
+
 
 def get_registred_image():
     if current_user.is_authenticated:
@@ -33,6 +37,7 @@ def get_registred_image():
             return "billy.jpg"
     else:
         return "billy.jpg"
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -59,28 +64,36 @@ def index():
                                afisha=afisha_data,
                                news=NA, not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route('/support')
 def support():
     try:
         return render_template('support.html', not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route('/about')
 def about():
     try:
         return render_template('about.html', not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route('/contacts')
 def contacts():
     try:
         return render_template('contacts.html', not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route('/archive')
 def archive():
@@ -100,18 +113,21 @@ def archive():
                 event['audio_file'] = f"static/audio/{audio.file_name}"
             except Exception as err:
                 print(err)
-        return render_template('archive.html', concerts=concerts, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template('archive.html', concerts=concerts, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route('/actual_events')
 def actual_events():
     try:
-        return render_template('actual_events.html', not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template('actual_events.html', not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
-
-
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 @app.route('/profile/<int:profile_id>')
@@ -144,19 +160,25 @@ def profile(profile_id):
                 image_profile = user.profile_image
             else:
                 image_profile = "billy.jpg"
+            this_user = False
+            if current_user.id == user.id:
+                this_user = True
             return render_template('profile.html', name=user.username, not_registered=get_registred_id(),
                                    user_information=data, profile_image=image_profile, image_information=data1,
-                                   video_information=data2, audio_information=data3)
+                                   video_information=data2, audio_information=data3, this_user=this_user)
         else:
             return render_template('nt_exist.html', id=profile_id, type="Пользователя",
                                    not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route('/test')
 def test():
     session = db_session.create_session()
     return "test"
+
 
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
@@ -192,9 +214,11 @@ def registration():
                     session.add(new_user)
                     session.commit()
                     return redirect("/")
-        return render_template('registration.html', form=form, additional_errors=errors, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template('registration.html', form=form, additional_errors=errors,
+                               not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -215,9 +239,11 @@ def login():
                     errors.append("Неверный пароль.")
             else:
                 errors.append("Пользователя с таким именем не существует.")
-        return render_template("login.html", form=form, additional_errors=errors, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("login.html", form=form, additional_errors=errors, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
     except Exception as err:
-        return render_template("error.html", err=err, not_registered=get_registred_id(), profile_image=get_registred_image())
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 @app.route('/my_profile')
@@ -226,11 +252,34 @@ def my_profile():
     cur_id = current_user.id
     return redirect(f"profile/{cur_id}")
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect("/")
 
+@app.route('/load/image/<type>', methods=['GET', 'POST'])
+@login_required
+def load_image(type):
+    form = UploadForm()
+    errors = []
+    form_title = ""
+    if type == "prf":
+        form_title = "профиля"
+    if form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename)
+        form.file.data.save('static/images/' + form.file.data.filename)
+        session = db_session.create_session()
+        user = session.query(Users).filter(Users.id == current_user.id).first()
+        if user:
+            user.profile_image = form.file.data.filename
+            session.commit()
+            return redirect("/my_profile")
+
+    return render_template("load_image.html", form=form, additional_errors=errors, not_registered=get_registred_id(),
+                           profile_image=get_registred_image(), title = form_title)
+
+
 if __name__ == '__main__':
-    app.run(port=8080,  host='127.0.0.1')
+    app.run(port=8080, host='127.0.0.1')
