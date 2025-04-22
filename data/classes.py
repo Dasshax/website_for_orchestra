@@ -1,10 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
-from .db_session import SqlAlchemyBase
-
-import datetime
 
 
 class RegistrationForm(FlaskForm):
@@ -17,13 +13,14 @@ class RegistrationForm(FlaskForm):
         DataRequired(message="Поле не должно быть пустым"), EqualTo('password', message="Пароли не совпадают")])
     first_name = StringField('Имя:', validators=[DataRequired(message="Поле не должно быть пустым")])
     last_name = StringField('Фамилия:', validators=[DataRequired(message="Поле не должно быть пустым")])
-    bio = StringField('О себе: ', validators=[])
+    bio = TextAreaField('О себе: ', validators=[])
     submit = SubmitField('Регистрация')
 
 
-class EnterForm(FlaskForm):
+class LoginForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired(message="Поле не должно быть пустым")])
     password = PasswordField('Пароль', validators=[DataRequired(message="Поле не должно быть пустым")])
+    remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Вход')
 
 

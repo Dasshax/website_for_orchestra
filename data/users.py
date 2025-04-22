@@ -1,3 +1,4 @@
+from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
 from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
@@ -10,7 +11,7 @@ CONVERT_TO_RUSSIAN = {"id": "id", "username": "имя пользователя",
                       "last_name": "фамилия", "registration_date": "дата регистрации", "is_admin": "администратор",
                       "bio": "о себе"}
 
-class Users(SqlAlchemyBase):
+class Users(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
