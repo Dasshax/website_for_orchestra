@@ -38,39 +38,39 @@
 1) регистрация 
 - правильно заполнить все поля
 - нажать кнопку "регистрация"
-![Alt text for the image](materials\user_registration.jpg)
+![Alt text for the image](materials\user_registration.png)
 2) авторизация
 - если пользователь регестрировался ранее
 - ввести логин и пароль
-![Alt text for the image](materials\authorization.jpg)
+![Alt text for the image](materials\authorization.png)
 3) загрузка фото профиля
 - выбрать файл
 - нажать кнопку "загрузить"
-![Alt text for the image](materials\load_image.jpg)
+![Alt text for the image](materials\load_image.png)
 4) изменение фото профиля
 - зайти в профиль
 - нажать "изменить"
 - загрузить другое фото
-![Alt text for the image](materials\user_account.jpg)
+![Alt text for the image](materials\user_account.png)
 #### Только для админа
 1) загрузка изображения/аудио/видео
 - зайти в профиль
 - нажать на соответствующую кнопку загрузки
 - при удалении нажать "удалить"
-![Alt text for the image](materials\admin_account.jpg)
+![Alt text for the image](materials\admin_account.png)
 2) создание концерта (прошедшего)
 - заполнить форму
 - нажать "создать"
-![Alt text for the image](materials\create_concert.jpg)
+![Alt text for the image](materials\create_concert.png)
 3) создание актуального мероприятия
  - заполнить форму
  - нажать "создать"
-![Alt text for the image](materials\create_event.jpg)
+![Alt text for the image](materials\create_event.png)
 4) удаление загруженных материалов
 - нажать "удалить"
-![Alt text for the image](materials\delete_materials.jpg)
+![Alt text for the image](materials\delete_materials.png)
 5) удаление новостей/постов
 - нажать "удалить"
-![Alt text for the image](materials\delete_posts.jpg)
+![Alt text for the image](materials\delete_posts.png)
 5. ### Ссылка на скринкаст
 --
