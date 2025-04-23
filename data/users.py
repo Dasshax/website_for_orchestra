@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
-from .db_session import SqlAlchemyBase
+from data.db_session import SqlAlchemyBase
 from sqlalchemy import orm
 
 import datetime
@@ -10,6 +10,7 @@ global CONVERT_TO_RUSSIAN
 CONVERT_TO_RUSSIAN = {"id": "id", "username": "имя пользователя", "email": "электронная почта", "first_name": "имя",
                       "last_name": "фамилия", "registration_date": "дата регистрации", "is_admin": "администратор",
                       "bio": "о себе"}
+
 
 class Users(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
@@ -31,5 +32,6 @@ class Users(SqlAlchemyBase, UserMixin):
     _videos = orm.relationship("Videos", backref='users')
     _images = orm.relationship("Images", backref='users')
     _audios = orm.relationship("Audios", backref='users')
+
     def __repr__(self):
         return f"<Users(username='{self.username}', email='{self.email}')>"

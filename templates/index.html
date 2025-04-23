@@ -27,8 +27,8 @@
             {% if is_admin %}
             <a href="{{ '/move_to_archive_event/' + event.id|string }}" class="button">В архив</a>
             {% endif %}
-            {% endif %}
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </section>

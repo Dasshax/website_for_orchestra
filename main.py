@@ -16,8 +16,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 
-
-
 app = Flask(__name__)
 db_session.global_init(DB_NAME)
 login_manager = LoginManager()
@@ -43,11 +41,13 @@ def get_registred_image():
     else:
         return "billy.jpg"
 
+
 def get_is_admin():
     if current_user.is_authenticated:
         return current_user.is_admin
     else:
         return False
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -58,22 +58,28 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/index')
 def index():
-    events = open('data/actual_events.json', encoding='utf-8')
-    f = events.read()
-    afisha_data = json.loads(f)
-    afisha_data = afisha_data[::-1]
-    na = open('data/news_articles.json', encoding='utf-8')
-    f1 = na.read()
-    NA = json.loads(f1)
-    NA = NA[::-1]
-    session = db_session.create_session()
-    for event in afisha_data:
-        image = session.query(Images).filter(Images.id == event['image']).first()
-        event['image'] = f"static/images/{image.file_name}"
-    return render_template('./index.html',
-                           afisha=afisha_data,
-                           news=NA, not_registered=get_registred_id(), profile_image=get_registred_image(),
-                           is_admin=get_is_admin())
+    try:
+        events = open('data/actual_events.json', encoding='utf-8')
+        f = events.read()
+        afisha_data = json.loads(f)
+        if afisha_data:
+            afisha_data = afisha_data[::-1]
+        na = open('data/news_articles.json', encoding='utf-8')
+        f1 = na.read()
+        NA = json.loads(f1)
+        if NA:
+            NA = NA[::-1]
+        session = db_session.create_session()
+        for event in afisha_data:
+            image = session.query(Images).filter(Images.id == event['image']).first()
+            event['image'] = f"static/images/{image.file_name}"
+        return render_template('./index.html',
+                               afisha=afisha_data,
+                               news=NA, not_registered=get_registred_id(), profile_image=get_registred_image(),
+                               is_admin=get_is_admin())
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 @app.route('/support')
@@ -109,6 +115,8 @@ def archive():
         conc = open('data/concerts.json', encoding='utf-8')
         f = conc.read()
         concerts = json.loads(f)
+        if concerts:
+            concerts = concerts[::-1]
         session = db_session.create_session()
         for event in concerts:
             video = session.query(Videos).filter(Videos.id == event['video_file']).first()
@@ -136,8 +144,20 @@ def archive():
 @app.route('/actual_events')
 def actual_events():
     try:
+        events = open('data/actual_events.json', encoding='utf-8')
+        f = events.read()
+        session = db_session.create_session()
+
+        afisha_data = json.loads(f)
+        if afisha_data:
+            afisha_data = afisha_data[::-1]
+
+        for event in afisha_data:
+            image = session.query(Images).filter(Images.id == event['image']).first()
+            event['image'] = f"static/images/{image.file_name}"
+
         return render_template('actual_events.html', not_registered=get_registred_id(),
-                               profile_image=get_registred_image())
+                               profile_image=get_registred_image(), afisha=afisha_data)
     except Exception as err:
         return render_template("error.html", err=err, not_registered=get_registred_id(),
                                profile_image=get_registred_image())
@@ -145,43 +165,48 @@ def actual_events():
 
 @app.route('/profile/<int:profile_id>')
 def profile(profile_id):
-    profile_id = int(profile_id)
-    session = db_session.create_session()
-    user = session.query(Users).filter(Users.id == profile_id).first()
-    data = []
-    if user:
-        for key in CONVERT_TO_RUSSIAN.keys():
-            exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
-        images = session.query(Images).filter(Images.author_id == profile_id).all()
-        data1 = []
-        for i in images:
-            if i.operation_type == "EXIST":
-                data1.append((i.file_name, i.id, i.date, i.operation_type))
-        videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
-        data2 = []
-        for i in videos:
-            data2.append((i.file_name, i.id, i.date))
+    try:
+        profile_id = int(profile_id)
+        session = db_session.create_session()
+        user = session.query(Users).filter(Users.id == profile_id).first()
+        data = []
+        if user:
+            for key in CONVERT_TO_RUSSIAN.keys():
+                exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
+            images = session.query(Images).filter(Images.author_id == profile_id).all()
+            data1 = []
+            for i in images:
+                if i.operation_type == "EXIST":
+                    data1.append((i.file_name, i.id, i.date, i.operation_type))
+            videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
+            data2 = []
+            for i in videos:
+                data2.append((i.file_name, i.id, i.date))
 
-        audio = session.query(Audios).filter(Audios.author_id == profile_id).all()
-        data3 = []
+            audio = session.query(Audios).filter(Audios.author_id == profile_id).all()
+            data3 = []
 
-        for i in audio:
-            data3.append((i.file_name, i.id, i.date))
-        if user.profile_image:
-            image_profile = user.profile_image
+            for i in audio:
+                data3.append((i.file_name, i.id, i.date))
+            if user.profile_image:
+                image_profile = user.profile_image
+            else:
+                image_profile = "billy.jpg"
+            this_user = False
+            if current_user.is_authenticated:
+                if current_user.id == user.id:
+                    this_user = True
+            return render_template('profile.html', name=user.username, not_registered=get_registred_id(),
+                                   user_information=data, profile_image=image_profile, image_information=data1,
+                                   video_information=data2, audio_information=data3, this_user=this_user,
+                                   user_id=profile_id,
+                                   is_curr_user_admin=get_is_admin())
         else:
-            image_profile = "billy.jpg"
-        this_user = False
-        if current_user.is_authenticated:
-            if current_user.id == user.id:
-                this_user = True
-        return render_template('profile.html', name=user.username, not_registered=get_registred_id(),
-                               user_information=data, profile_image=image_profile, image_information=data1,
-                               video_information=data2, audio_information=data3, this_user=this_user, user_id=profile_id,
-                               is_curr_user_admin=get_is_admin())
-    else:
-        return render_template('nt_exist.html', id=profile_id, type="Пользователя",
-                               not_registered=get_registred_id(), profile_image=get_registred_image())
+            return render_template('nt_exist.html', id=profile_id, type="Пользователя",
+                                   not_registered=get_registred_id(), profile_image=get_registred_image())
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 @app.route('/test')
@@ -273,42 +298,46 @@ def logout():
 @app.route('/delete_from_<string:redirto>/<string:typ>/<int:del_id>')
 @login_required
 def delete_from(redirto, typ, del_id):
-    session = db_session.create_session()
-    redirto = str(redirto)
-    if typ == "image":
-        image = session.query(Images).filter(Images.id == del_id).first()
-        if image:
-            if (image.author_id == current_user.id) or get_is_admin():
-                image.operation_type = "DELETED"
-                try:
-                    os.remove('static/images/' + image.file_name)
-                except Exception as err:
-                    print(err)
-    if typ == "video":
-        video = session.query(Videos).filter(Videos.id == del_id).first()
-        if video:
-            if (video.author_id == current_user.id) or get_is_admin():
-                video.operation_type = "DELETED"
-                try:
-                    os.remove('static/videos/' + video.file_name)
-                except Exception as err:
-                    print(err)
-    if typ == "audio":
-        audio = session.query(Audios).filter(Audios.id == del_id).first()
-        if audio:
-            if (audio.author_id == current_user.id) or get_is_admin():
-                audio.operation_type = "DELETED"
-                try:
-                    os.remove('static/audio/' + video.file_name)
-                except Exception as err:
-                    print(err)
+    try:
+        session = db_session.create_session()
+        redirto = str(redirto)
+        if typ == "image":
+            image = session.query(Images).filter(Images.id == del_id).first()
+            if image:
+                if (image.author_id == current_user.id) or get_is_admin():
+                    image.operation_type = "DELETED"
+                    try:
+                        os.remove('static/images/' + image.file_name)
+                    except Exception as err:
+                        print(err)
+        if typ == "video":
+            video = session.query(Videos).filter(Videos.id == del_id).first()
+            if video:
+                if (video.author_id == current_user.id) or get_is_admin():
+                    video.operation_type = "DELETED"
+                    try:
+                        os.remove('static/videos/' + video.file_name)
+                    except Exception as err:
+                        print(err)
+        if typ == "audio":
+            audio = session.query(Audios).filter(Audios.id == del_id).first()
+            if audio:
+                if (audio.author_id == current_user.id) or get_is_admin():
+                    audio.operation_type = "DELETED"
+                    try:
+                        os.remove('static/audio/' + video.file_name)
+                    except Exception as err:
+                        print(err)
 
-    session.commit()
+        session.commit()
 
-    if "profile" in redirto:
-        past = redirto[redirto.find("_") + 1:]
+        if "profile" in redirto:
+            past = redirto[redirto.find("_") + 1:]
 
-        return redirect(f"/profile/{past}")
+            return redirect(f"/profile/{past}")
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 @app.route('/load/image/<type>', methods=['GET', 'POST'])
@@ -357,11 +386,13 @@ def load_image(type):
             else:
                 errors.append("Изображение с таким именем уже существует.")
 
-        return render_template("load_image.html", form=form, additional_errors=errors, not_registered=get_registred_id(),
+        return render_template("load_image.html", form=form, additional_errors=errors,
+                               not_registered=get_registred_id(),
                                profile_image=get_registred_image(), title=form_title)
     except Exception as err:
         return render_template("error.html", err=err, not_registered=get_registred_id(),
                                profile_image=get_registred_image())
+
 
 @app.route('/load/video', methods=['GET', 'POST'])
 @login_required
@@ -436,167 +467,188 @@ def load_audio():
         return render_template("error.html", err=err, not_registered=get_registred_id(),
                                profile_image=get_registred_image())
 
+
 @app.route("/move_to_archive_<typ>/<int:id>")
 @login_required
 def move_to_archive(typ, id):
+    try:
+        if not get_is_admin():
+            return redirect("/")
 
-    if not get_is_admin():
+        if typ == "event":
+            events = open('data/actual_events.json', encoding='utf-8')
+            f = events.read()
+            afisha_data = json.loads(f)
+            for k in afisha_data:
+                if id == k['id']:
+                    k['is_in_archive'] = True
+            events.close()
+            events = open('data/actual_events.json', 'w', encoding='utf-8')
+            json.dump(afisha_data, events, ensure_ascii=False)
+            events.close()
+        if typ == "article":
+            na = open('data/news_articles.json', encoding='utf-8')
+            f1 = na.read()
+            NA = json.loads(f1)
+            for k in NA:
+                if id == k['id']:
+                    k['is_in_archive'] = True
+            na.close()
+            na = open('data/news_articles.json', 'w', encoding='utf-8')
+            json.dump(NA, na, ensure_ascii=False)
+            na.close()
         return redirect("/")
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image)
 
-    if typ == "event":
-        events = open('data/actual_events.json', encoding='utf-8')
-        f = events.read()
-        afisha_data = json.loads(f)
-        for k in afisha_data:
-            if id == k['id']:
-                k['is_in_archive'] = True
-        events.close()
-        events = open('data/actual_events.json', 'w', encoding='utf-8')
-        json.dump(afisha_data, events, ensure_ascii=False)
-        events.close()
-    if typ == "article":
-        na = open('data/news_articles.json', encoding='utf-8')
-        f1 = na.read()
-        NA = json.loads(f1)
-        for k in NA:
-            if id == k['id']:
-                k['is_in_archive'] = True
-        na.close()
-        na = open('data/news_articles.json', 'w', encoding='utf-8')
-        na.close()
-        json.dump(NA, na, ensure_ascii=False)
-    return redirect("/")
 
 @app.route("/add_event", methods=['GET', 'POST'])
 @login_required
 def add_event():
-    form = CreateEvent()
-    errors = []
-    session = db_session.create_session()
+    try:
+        form = CreateEvent()
+        errors = []
+        session = db_session.create_session()
 
-    if not get_is_admin():
-        return redirect("/")
+        if not get_is_admin():
+            return redirect("/")
 
-    if form.validate_on_submit():
-        try:
-            int(form.image.data)
-            images = session.query(Images).filter(Images.id == form.image.data)
-            if images:
-                events = open('data/actual_events.json', encoding='utf-8')
-                f = events.read()
-                afisha_data = json.loads(f)
+        if form.validate_on_submit():
+            try:
+                int(form.image.data)
+                images = session.query(Images).filter(Images.id == form.image.data)
+                if images:
+                    events = open('data/actual_events.json', encoding='utf-8')
+                    f = events.read()
+                    afisha_data = json.loads(f)
 
-                new_event = {}
-                try:
-                    new_event["id"] = afisha_data[-1]["id"]
-                except Exception:
-                    new_event["id"] = 1
-                new_event['title'] = form.title.data
-                new_event['description'] = form.description.data
-                new_event['image'] = form.image.data
-                new_event['location'] = form.location.data
-                new_event['ticket_link'] = form.ticket_link.data
-                new_event['is_in_archive'] = False
-                new_event['author_id'] = current_user.id
-                afisha_data.append(new_event)
-                events.close()
-                events = open('data/actual_events.json', 'w', encoding='utf-8')
-                json.dump(afisha_data, events, ensure_ascii=False)
-                events.close()
-                return redirect("/")
-        except Exception:
-            errors.append("Id изображения должно быть числом")
-        else:
-            errors.append("Изображения не существует")
-    return render_template("create_event.html", form=form, additional_errors=errors,
+                    new_event = {}
+                    try:
+                        new_event["id"] = afisha_data[-1]["id"] + 1
+                    except Exception:
+                        new_event["id"] = 1
+                    new_event['title'] = form.title.data
+                    new_event['description'] = form.description.data
+                    new_event['image'] = form.image.data
+                    new_event['location'] = form.location.data
+                    new_event['ticket_link'] = form.ticket_link.data
+                    new_event['is_in_archive'] = False
+                    new_event['author_id'] = current_user.id
+                    afisha_data.append(new_event)
+                    events.close()
+                    events = open('data/actual_events.json', 'w', encoding='utf-8')
+                    json.dump(afisha_data, events, ensure_ascii=False)
+                    events.close()
+                    return redirect("/")
+                    print(afisha_data[0]["id"])
+                else:
+                    errors.append("Изображения не существует")
+            except Exception:
+                errors.append("Id изображения должно быть числом")
+
+        return render_template("create_event.html", form=form, additional_errors=errors,
                                not_registered=get_registred_id(), profile_image=get_registred_image())
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route("/add_news", methods=['GET', 'POST'])
 @login_required
 def add_news():
-    form = CreateNews()
-    errors = []
-    if not get_is_admin():
-        return redirect("/")
-    if form.validate_on_submit():
-        na = open('data/news_articles.json', encoding='utf-8')
-        f1 = na.read()
-        NA = json.loads(f1)
+    try:
+        form = CreateNews()
+        errors = []
+        if not get_is_admin():
+            return redirect("/")
+        if form.validate_on_submit():
+            na = open('data/news_articles.json', encoding='utf-8')
+            f1 = na.read()
+            NA = json.loads(f1)
 
-        new_news = {}
+            new_news = {}
 
-        try:
-            new_news["id"] = NA[-1]["id"]
-        except Exception:
-            new_news["id"] = 1
+            try:
+                new_news["id"] = NA[-1]["id"] + 1
+            except Exception:
+                new_news["id"] = 1
 
-        new_news['content'] = form.description.data
-        new_news['title'] = form.title.data
-        new_news['is_in_archive'] = False
-        new_news['date'] = (str(datetime.date.today()) + " " + str(datetime.datetime.now().strftime("%H:%M:%S")))
-        NA.append(new_news)
-        na.close()
-        na = open('data/news_articles.json', 'w', encoding='utf-8')
-        json.dump(NA, na, ensure_ascii=False)
-        na.close()
-        return redirect("/")
-    return render_template("create_news.html", form=form, additional_errors=errors,
+            new_news['content'] = form.description.data
+            new_news['title'] = form.title.data
+            new_news['is_in_archive'] = False
+            new_news['date'] = (str(datetime.date.today()) + " " + str(datetime.datetime.now().strftime("%H:%M:%S")))
+            NA.append(new_news)
+            na.close()
+            na = open('data/news_articles.json', 'w', encoding='utf-8')
+            json.dump(NA, na, ensure_ascii=False)
+            na.close()
+            return redirect("/")
+        return render_template("create_news.html", form=form, additional_errors=errors,
                                not_registered=get_registred_id(), profile_image=get_registred_image())
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
+
 
 @app.route("/add_concert", methods=['GET', 'POST'])
 @login_required
 def add_concert():
-    form = CreateConcert()
-    if not get_is_admin():
-        return redirect("/")
-    errors = []
-    session = db_session.create_session()
+    try:
+        form = CreateConcert()
+        if not get_is_admin():
+            return redirect("/")
+        errors = []
+        session = db_session.create_session()
 
-    if form.validate_on_submit():
-        try:
-            int(form.afisha_image.data)
-            images = session.query(Images).filter(Images.id == form.afisha_image.data)
-            if not images:
-                raise Exception
-        except Exception:
-            errors.append("Неверно указан id изображения или оно не существует")
-        try:
-            int(form.video_file.data)
-            video = session.query(Videos).filter(Videos.id == form.video_file.data)
-            if not video:
-                raise Exception
-        except Exception:
-            errors.append("Неверно указан id видео или оно не существует")
-        try:
-            int(form.audio_file.data)
-            audio = session.query(Audios).filter(Audios.id == form.audio_file.data)
-            if not audio:
-                raise Exception
-        except Exception:
-            errors.append("Неверно указан id аудио или оно не существует")
+        if form.validate_on_submit():
+            try:
+                int(form.afisha_image.data)
+                images = session.query(Images).filter(Images.id == form.afisha_image.data)
+                if not images:
+                    raise Exception
+            except Exception:
+                errors.append("Неверно указан id изображения или оно не существует")
+            try:
+                int(form.video_file.data)
+                video = session.query(Videos).filter(Videos.id == form.video_file.data)
+                if not video:
+                    raise Exception
+            except Exception:
+                errors.append("Неверно указан id видео или оно не существует")
+            try:
+                int(form.audio_file.data)
+                audio = session.query(Audios).filter(Audios.id == form.audio_file.data)
+                if not audio:
+                    raise Exception
+            except Exception:
+                errors.append("Неверно указан id аудио или оно не существует")
 
-        conc = open('data/concerts.json', encoding='utf-8')
-        f = conc.read()
-        concerts = json.loads(f)
-        conc.close()
-        new_concert = {}
-        try:
-            new_concert["id"] = concerts[-1]["id"]
-        except Exception:
-            new_concert["id"] = 1
-        new_concert['title'] = form.title.data
-        new_concert['afisha_image'] = form.afisha_image.data
-        new_concert['date_time'] = form.date_time.data
-        new_concert['location'] = form.location.data
-        new_concert['audio_file'] = form.audio_file.data
-        new_concert['video_file'] = form.video_file.data
-        concerts.append(new_concert)
-        conc = open('data/concerts.json', "w", encoding='utf-8')
-        json.dump(concerts, conc, ensure_ascii=False)
-        return redirect("/archive")
-    return render_template("create_concert.html", form=form, additional_errors=errors,
+            conc = open('data/concerts.json', encoding='utf-8')
+            f = conc.read()
+            concerts = json.loads(f)
+            conc.close()
+            new_concert = {}
+            try:
+                new_concert["id"] = concerts[-1]["id"]
+            except Exception:
+                new_concert["id"] = 1
+            new_concert['title'] = form.title.data
+            new_concert['afisha_image'] = form.afisha_image.data
+            new_concert['date_time'] = form.date_time.data
+            new_concert['location'] = form.location.data
+            new_concert['audio_file'] = form.audio_file.data
+            new_concert['video_file'] = form.video_file.data
+            concerts.append(new_concert)
+            conc = open('data/concerts.json', "w", encoding='utf-8')
+            json.dump(concerts, conc, ensure_ascii=False)
+            conc.close()
+            return redirect("/archive")
+        return render_template("create_concert.html", form=form, additional_errors=errors,
                                not_registered=get_registred_id(), profile_image=get_registred_image())
-
+    except Exception as err:
+        return render_template("error.html", err=err, not_registered=get_registred_id(),
+                               profile_image=get_registred_image())
 
 
 if __name__ == '__main__':
