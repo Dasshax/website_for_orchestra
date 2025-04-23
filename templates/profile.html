@@ -4,7 +4,122 @@
 
 {% block content %}
 <section>
-    <h2>Профиль {{ name }}</h2>
+    <table>
+        <tr>
+            <td>
+                <h2>Профиль {{ name }}</h2>
+            </td>
+        </tr>
+        <tr>
+            <td>Изображение профиля: </td>
+            <td>
+                <img src="{{ '/static/images/' + profile_image}}" width="100" height="100" alt="1">
+            </td>
+            {% if this_user %}
+            <td>
+                <a href="/load/image/prf" class="button">Изменить.</a>
+            </td>
+            {% endif %}
+        </tr>
+    </table>
+    <table>
+        {% for name, data in user_information %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ data }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+
+    <h3>Загруженные материалы</h3>
+    {% if is_curr_user_admin %}
+        <a href= {{ "/load/image/adm" }} class="button">Загрузить изображение</a>
+    <a href= {{ "/load/video" }} class="button">Загрузить видео</a>
+    <a href= {{ "/load/audio" }} class="button">Загрузить аудио</a>
+    {% endif %}
+    {% if image_information %}
+    <h4>Изображения</h4>
+    {% for image, id, date, sost in image_information %}
+        <img src="{{ '/static/images/' + image }}" width="100" height="100" alt="1">
+        <table style="margin-bottom: 20px">
+        <tr>
+            <td>Имя: </td>
+            <td>{{ image }}</td>
+        </tr>
+        <tr>
+            <td>Идентификатор: </td>
+            <td>{{ id }}</td>
+        </tr>
+        <tr>
+            <td>Дата загрузки: </td>
+            <td>{{ date }}</td>
+        </tr>
+        <tr>
+            <td>Состояние: </td>
+            <td>{{ sost }}</td>
+        </tr>
+        </table>
+        {% if this_user or is_curr_user_admin %}
+            <a href= {{ "/delete_from_profile_" + user_id|string + "/image/" + id|string }} class="button">Удалить</a>
+        {% endif %}
+        <p></p>
+    {% endfor %}
+    {% endif %}
+    {% if video_information %}
+    <h4>Видео</h4>
+    {% for video, id, date in video_information %}
+         <video width="320" height="240" controls>
+                                <source src="{{ '/static/videos/' + video }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+        <table style="margin-bottom: 20px">
+        <tr>
+            <td>Имя: </td>
+            <td>{{ video }}</td>
+        </tr>
+        <tr>
+            <td>Идентификатор: </td>
+            <td>{{ id }}</td>
+        </tr>
+        <tr>
+            <td>Дата загрузки: </td>
+            <td>{{ date }}</td>
+        </tr>
+        </table>
+        {% if this_user or is_curr_user_admin %}
+            <a href= {{ "/delete_from_profile_" + user_id|string + "/video/" + id|string }} class="button">Удалить</a>
+        {% endif %}
+        <p></p>
+    {% endfor %}
+    {% endif %}
+    {% if audio_information %}
+    <h4>Аудио</h4>
+    {% for audio, id, date in audio_information %}
+         <audio controls>
+             <source src="{{ '/static/audio/' + audio }}" type="audio/mpeg">
+             Your browser does not support the audio element.
+         </audio>
+        <table style="margin-bottom: 20px">
+        <tr>
+            <td>Имя: </td>
+            <td>{{ audio }}</td>
+        </tr>
+        <tr>
+            <td>Идентификатор: </td>
+            <td>{{ id }}</td>
+        </tr>
+        <tr>
+            <td>Дата загрузки: </td>
+            <td>{{ date }}</td>
+        </tr>
+        </table>
+        {% if this_user or is_curr_user_admin %}
+            <a href= {{ "/delete_from_profile_" + user_id|string + "/audio/" + id|string }} class="button">Удалить</a>
+        {% endif %}
+        <p></p>
+    {% endfor %}
+    {% endif %}
 </section>
 
 

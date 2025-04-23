@@ -3,15 +3,15 @@ from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
 
 
-class Images(SqlAlchemyBase):
-    __tablename__ = 'images'
+class Audios(SqlAlchemyBase):
+    __tablename__ = 'audios'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    file_name = Column(String(50), unique=False, nullable=False)
+    file_name = Column(String(50), unique=True, nullable=False)
     operation_type = Column(String(50), nullable=False)
     date = Column(String(50), unique=False, nullable=False)
     author_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    user = orm.relationship('Users')
 
+    user = orm.relationship('Users')
     def __repr__(self):
-        return f"<Image(file_name='{self.file_name}', date='{self.date}')>"
+        return f"<Audio(file_name='{self.file_name}', date='{self.date}')>"

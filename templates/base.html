@@ -14,12 +14,18 @@
         <nav>
             <a href="{{ url_for('index') }}">Главная</a>
             <a href="{{ url_for('about') }}">Об оркестре</a>
-            <a href="{{ url_for('archive') }}">Архив</a>
+            <a href="{{ url_for('archive') }}">Архив концертов</a>
             <a href="{{ url_for('actual_events') }}">Актуальные мероприятия</a>
             <a href="{{ url_for('support') }}">Поддержка</a>
             <a href="{{ url_for('contacts') }}">Контакты</a>
-            <a href="{{ url_for('login') }}">Войти</a>
-            <a href="{{ url_for('register') }}">Зарегестрироваться</a>
+            {% if not_registered == 0 %}
+            <a href="{{ url_for('registration') }}" class="button">Регистрация</a>
+            <a href="{{ url_for('login') }}" class="button">Вход</a>
+            {% elif not_registered != 0 %}
+            <a href="{{ url_for('my_profile') }}" class="button">Мой профиль</a>
+            <img src= "{{ '/static/images/' + profile_image }}" width="50" height="50" alt="1">
+            <a href="{{ url_for('logout') }}" class="button">Выход</a>
+            {% endif %}
         </nav>
     </div>
 </header>

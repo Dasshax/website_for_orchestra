@@ -1,17 +1,1 @@
-[
-    {
-        "title": "Концерт под звездами",
-        "description": "Вечер классической музыки под открытым небом.",
-        "image": "1",
-        "ticket_link": "#",
-        "location": "ВДНХ"
-
-    },
-    {
-        "title": "Праздничный концерт популярной музыки",
-        "description": "Фестивальный концерт с любимыми праздничными мелодиями.",
-        "image": "2",
-        "ticket_link": "#",
-        "location": "Москва сити"
-    }
-]
+[{"id": 1, "title": "Концерт под звездами", "description": "Вечер классической музыки под открытым небом.", "image": "1", "ticket_link": "#", "location": "ВДНХ", "is_in_archive": false}, {"id": 2, "title": "Праздничный концерт популярной музыки", "description": "Фестивальный концерт с любимыми праздничными мелодиями.", "image": "2", "ticket_link": "#", "location": "Москва сити", "is_in_archive": false}, {"id": 3, "title": "1234", "description": "1324", "image": 1, "location": "123", "ticket_link": "123", "is_in_archive": false, "author_id": 3}]

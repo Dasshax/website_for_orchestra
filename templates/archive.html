@@ -4,27 +4,29 @@
 
 {% block content %}
     <h1>Архив концертов</h1>
-
+    {% if is_admin %}
+    <a href= {{ "/add_concert" }} class="button">Добавить концерт</a>
+    {% endif %}
     <section id="concert-archive">
         {% if concerts %}
             {% for concert in concerts %}
                 <div class="concert-item">
                     <h2>{{ concert.title }}</h2>
-                    <img src="{{ concert.afisha_image }}" alt="{{ concert.title }}" class="afisha">
+                    <img src="{{ concert.afisha_image }}" alt="{{ concert.title }}" width="50" height="50" class="afisha">
                     <div class="concert-details">
                         <p><strong>Время:</strong> {{ concert.date_time }}</p>
                         <p><strong>Место:</strong> {{ concert.location }}</p>
 
                         {% if concert.audio_file %}
                             <audio controls>
-                                <source src="{{ url_for('static', filename=concert.audio_file) }}" type="audio/mpeg">
+                                <source src="{{ concert.audio_file }}" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
                         {% endif %}
 
                         {% if concert.video_file %}
                            <video width="320" height="240" controls>
-                                <source src="{{ url_for('static', filename=concert.video_file) }}" type="video/mp4">
+                                <source src="{{ concert.video_file }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                         {% endif %}

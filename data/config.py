@@ -1,0 +1,4 @@
+SECRET_KEY = "FROLOV_NIKITA_LOX"
+SERVER = "127.0.0.1"
+PORT = '8080'
+DB_NAME = "db/users.db"

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Поддержка | Name of orchestra{% endblock %}
+
+{% block content %}
+<section>
+    <form method="post" enctype="multipart/form-data">
+        <h2>Создание концерта.</h2>
+        {{ form.hidden_tag() }}
+        <table>
+            <tr>
+                <td>{{ form.title.label }}</td>
+                <td>{{ form.title(class="form-control") }}</td>
+            </tr>
+            {% for error in form.title.errors %}
+            <tr style="color:red;size:10px;">{{ error }}</tr>
+            {% endfor %}
+            <tr>
+                <td>{{ form.afisha_image.label }}</td>
+                <td>{{ form.afisha_image(class="form-control") }}</td>
+            </tr>
+            {% for error in form.afisha_image.errors %}
+            <tr style="color:red;size:10px;">{{ error }}</tr>
+            {% endfor %}
+            <tr>
+                <td>{{ form.date_time.label }}</td>
+                <td>{{ form.date_time(class="form-control") }}</td>
+            </tr>
+            {% for error in form.date_time.errors %}
+            <tr style="color:red;size:10px;">{{ error }}</tr>
+            {% endfor %}
+            <tr>
+                <td>{{ form.location.label }}</td>
+                <td>{{ form.location(class="form-control") }}</td>
+            </tr>
+            {% for error in form.location.errors %}
+            <tr style="color:red;size:10px;">{{ error }}</tr>
+            {% endfor %}
+            <tr>
+                <td>{{ form.audio_file.label }}</td>
+                <td>{{ form.audio_file(class="form-control") }}</td>
+            </tr>
+            {% for error in form.audio_file.errors %}
+            <tr style="color:red;size:10px;">{{ error }}</tr>
+            {% endfor %}
+            <tr>
+                <td>{{ form.video_file.label }}</td>
+                <td>{{ form.video_file(class="form-control") }}</td>
+            </tr>
+            {% for error in form.video_file.errors %}
+            <tr style="color:red;size:10px;">{{ error }}</tr>
+            {% endfor %}
+        </table>
+        <p>{{ form.submit(type="submit", class="button") }}</p>
+        <p>
+            {% for error in additional_errors %}
+        <h4 style="color:red;">{{ error }}</h4>
+        {% endfor %}
+    </form>
+</section>
+{% endblock %}
