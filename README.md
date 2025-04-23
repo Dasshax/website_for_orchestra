@@ -33,4 +33,44 @@
 | Добавление аудио     | В базе данных audios появляется новая запись         |
 | Добавление видео     | В базе данных videos появляется новая запись         | |                                                      |
 
-
+4. ### Управление для пользователя
+#### Для всех пользователей
+1) регистрация 
+- правильно заполнить все поля
+- нажать кнопку "регистрация"
+![Alt text for the image](materials\user_registration.jpg)
+2) авторизация
+- если пользователь регестрировался ранее
+- ввести логин и пароль
+![Alt text for the image](materials\authorization.jpg)
+3) загрузка фото профиля
+- выбрать файл
+- нажать кнопку "загрузить"
+![Alt text for the image](materials\load_image.jpg)
+4) изменение фото профиля
+- зайти в профиль
+- нажать "изменить"
+- загрузить другое фото
+![Alt text for the image](materials\user_account.jpg)
+#### Только для админа
+1) загрузка изображения/аудио/видео
+- зайти в профиль
+- нажать на соответствующую кнопку загрузки
+- при удалении нажать "удалить"
+![Alt text for the image](materials\admin_account.jpg)
+2) создание концерта (прошедшего)
+- заполнить форму
+- нажать "создать"
+![Alt text for the image](materials\create_concert.jpg)
+3) создание актуального мероприятия
+ - заполнить форму
+ - нажать "создать"
+![Alt text for the image](materials\create_event.jpg)
+4) удаление загруженных материалов
+- нажать "удалить"
+![Alt text for the image](materials\delete_materials.jpg)
+5) удаление новостей/постов
+- нажать "удалить"
+![Alt text for the image](materials\delete_posts.jpg)
+5. ### Ссылка на скринкаст
+--
