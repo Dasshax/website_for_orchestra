@@ -5,30 +5,59 @@
 {% block content %}
 
 <section id="afisha">
+    {% if is_admin %}
+    <table>
+        <tr>
+            <td><h2>Актуальные мероприятия</h2></td>
+            <td><a href="{{ url_for('support') }}" class="button">Добавить мероприятие</a></td>
+        </tr>
+    </table>
+    {% else %}
     <h2>Актуальные мероприятия</h2>
+    {% endif %}
     <div class="afisha-list">
         {% for event in afisha %}
+        {% if loop.index < 6 and not event.is_in_archive %}
         <div class="afisha-item">
             <img src="{{ event.image }}" alt="{{ event.title }}">
             <h3>{{ event.title }}</h3>
             <p>{{ event.description }}</p>
             <a href="{{ event.ticket_link }}">Билеты</a>
             <p>Место: {{ event.location }}</p>
+            {% if is_admin %}
+            <a href="{{ '/move_to_archive_event/' + event.id|string }}" class="button">В архив</a>
+            {% endif %}
+            {% endif %}
         </div>
         {% endfor %}
     </div>
 </section>
 
 <section id="news">
+    {% if is_admin %}
+    <table>
+        <tr>
+            <td><h2>Новости и статьи</h2></td>
+            <td><a href="{{ url_for('support') }}" class="button">Добавить новость</a></td>
+        </tr>
+    </table>
+    {% else %}
     <h2>Новости и статьи</h2>
+    {% endif %}
     <ul class="news-list">
         {% for article in news %}
+        {% if loop.index < 6 and not article.is_in_archive %}
         <li>
             <h3>{{ article.title }}</h3>
             <p>{{ article.content }}</p>
             <small>{{ article.date }}</small>
+            {% if is_admin %}
+            <a href="{{ '/move_to_archive_article/' + article.id|string  }}" class="button">В архив</a>
+            {% endif %}
         </li>
+        {% endif %}
         {% endfor %}
+
     </ul>
 </section>
 

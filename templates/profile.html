@@ -33,8 +33,13 @@
 
 
     <h3>Загруженные материалы</h3>
+    {% if is_curr_user_admin %}
+        <a href= {{ "/load/image/adm" }} class="button">Загрузить изображение</a>
+    <a href= {{ "/load/video" }} class="button">Загрузить видео</a>
+    <a href= {{ "/load/audio" }} class="button">Загрузить аудио</a>
+    {% endif %}
     {% if image_information %}
-    <h4>Изображния</h4>
+    <h4>Изображения</h4>
     {% for image, id, date, sost in image_information %}
         <img src="{{ '/static/images/' + image }}" width="100" height="100" alt="1">
         <table style="margin-bottom: 20px">

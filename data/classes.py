@@ -25,8 +25,17 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Вход')
 
 
-class UploadForm(FlaskForm):
+class UploadFormImage(FlaskForm):
     file = FileField(validators=[FileRequired(), FileAllowed(
         ['jpg', 'png'], 'Используйте следующие форматы: jpg, png')])
     submit = SubmitField('Загрузить')
 
+class UploadFormVideo(FlaskForm):
+    file = FileField(validators=[FileRequired(), FileAllowed(
+        ['mp4'], 'Используйте следующий формат: mp4')])
+    submit = SubmitField('Загрузить')
+
+class UploadFormAudio(FlaskForm):
+    file = FileField(validators=[FileRequired(), FileAllowed(
+        ['wav', 'mp3'], 'Используйте следующие форматы: wav, mp3')])
+    submit = SubmitField('Загрузить')
