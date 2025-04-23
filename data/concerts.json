@@ -1,18 +1,1 @@
-[
-    {
-        "title": "Симфонический концерт 1",
-        "afisha_image": "images/concert1_afisha.jpg",
-        "date_time": "2023-12-15 19:00",
-        "location": "Большой зал консерватории",
-        "audio_file": "1",
-        "video_file": "1"
-    },
-    {
-        "title": "Вечер камерной музыки",
-        "afisha_image": "images/concert2_afisha.jpg",
-        "date_time": "2024-01-20 18:00",
-        "location": "Малый зал филармонии",
-        "audio_file": "2",
-        "video_file": "2"
-    }
-]
+[{"title": "Симфонический концерт 1", "afisha_image": "1", "date_time": "2023-12-15 19:00", "location": "Большой зал консерватории", "audio_file": "1", "video_file": "1"}, {"title": "Вечер камерной музыки", "afisha_image": "1", "date_time": "2024-01-20 18:00", "location": "Малый зал филармонии", "audio_file": "2", "video_file": "2"}, {"id": 1, "title": "123", "afisha_image": 1, "date_time": "1234", "location": "1234", "audio_file": 1, "video_file": 1}]

@@ -4,13 +4,15 @@
 
 {% block content %}
     <h1>Архив концертов</h1>
-
+    {% if is_admin %}
+    <a href= {{ "/add_concert" }} class="button">Добавить концерт</a>
+    {% endif %}
     <section id="concert-archive">
         {% if concerts %}
             {% for concert in concerts %}
                 <div class="concert-item">
                     <h2>{{ concert.title }}</h2>
-                    <img src="{{ concert.afisha_image }}" alt="{{ concert.title }}" class="afisha">
+                    <img src="{{ concert.afisha_image }}" alt="{{ concert.title }}" width="50" height="50" class="afisha">
                     <div class="concert-details">
                         <p><strong>Время:</strong> {{ concert.date_time }}</p>
                         <p><strong>Место:</strong> {{ concert.location }}</p>

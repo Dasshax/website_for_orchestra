@@ -9,7 +9,7 @@
     <table>
         <tr>
             <td><h2>Актуальные мероприятия</h2></td>
-            <td><a href="{{ url_for('support') }}" class="button">Добавить мероприятие</a></td>
+            <td><a href="{{ '/add_event' }}" class="button">Добавить мероприятие</a></td>
         </tr>
     </table>
     {% else %}
@@ -38,7 +38,7 @@
     <table>
         <tr>
             <td><h2>Новости и статьи</h2></td>
-            <td><a href="{{ url_for('support') }}" class="button">Добавить новость</a></td>
+            <td><a href="{{ '/add_news' }}" class="button">Добавить новость</a></td>
         </tr>
     </table>
     {% else %}

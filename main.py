@@ -1,24 +1,29 @@
 from flask import Flask, render_template, redirect
 from werkzeug.utils import secure_filename
 import os
+from data.config import SECRET_KEY, SERVER, PORT, DB_NAME
 from data import db_session
 import json
 from data.users import Users, CONVERT_TO_RUSSIAN
 import datetime
+
 from data.images import Images
 from data.videos import Videos
 from data.audio import Audios
-from data.classes import RegistrationForm, LoginForm, UploadFormImage, UploadFormAudio, UploadFormVideo
+from data.classes import (RegistrationForm, LoginForm, UploadFormImage, UploadFormAudio, UploadFormVideo, CreateEvent,
+                          CreateNews, CreateConcert)
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 
+
+
 app = Flask(__name__)
-db_session.global_init("db/users.db")
+db_session.global_init(DB_NAME)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-app.config['SECRET_KEY'] = 'FROLOV_NIKITA_LOX'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 
 def get_registred_id():
@@ -56,9 +61,11 @@ def index():
     events = open('data/actual_events.json', encoding='utf-8')
     f = events.read()
     afisha_data = json.loads(f)
+    afisha_data = afisha_data[::-1]
     na = open('data/news_articles.json', encoding='utf-8')
     f1 = na.read()
     NA = json.loads(f1)
+    NA = NA[::-1]
     session = db_session.create_session()
     for event in afisha_data:
         image = session.query(Images).filter(Images.id == event['image']).first()
@@ -114,8 +121,13 @@ def archive():
                 event['audio_file'] = f"static/audio/{audio.file_name}"
             except Exception as err:
                 print(err)
+            image = session.query(Images).filter(Images.id == event['afisha_image']).first()
+            try:
+                event['afisha_image'] = f"static/images/{image.file_name}"
+            except Exception as err:
+                print(err)
         return render_template('archive.html', concerts=concerts, not_registered=get_registred_id(),
-                               profile_image=get_registred_image())
+                               profile_image=get_registred_image(), is_admin=get_is_admin())
     except Exception as err:
         return render_template("error.html", err=err, not_registered=get_registred_id(),
                                profile_image=get_registred_image())
@@ -427,6 +439,10 @@ def load_audio():
 @app.route("/move_to_archive_<typ>/<int:id>")
 @login_required
 def move_to_archive(typ, id):
+
+    if not get_is_admin():
+        return redirect("/")
+
     if typ == "event":
         events = open('data/actual_events.json', encoding='utf-8')
         f = events.read()
@@ -437,6 +453,7 @@ def move_to_archive(typ, id):
         events.close()
         events = open('data/actual_events.json', 'w', encoding='utf-8')
         json.dump(afisha_data, events, ensure_ascii=False)
+        events.close()
     if typ == "article":
         na = open('data/news_articles.json', encoding='utf-8')
         f1 = na.read()
@@ -446,9 +463,141 @@ def move_to_archive(typ, id):
                 k['is_in_archive'] = True
         na.close()
         na = open('data/news_articles.json', 'w', encoding='utf-8')
+        na.close()
         json.dump(NA, na, ensure_ascii=False)
     return redirect("/")
 
+@app.route("/add_event", methods=['GET', 'POST'])
+@login_required
+def add_event():
+    form = CreateEvent()
+    errors = []
+    session = db_session.create_session()
+
+    if not get_is_admin():
+        return redirect("/")
+
+    if form.validate_on_submit():
+        try:
+            int(form.image.data)
+            images = session.query(Images).filter(Images.id == form.image.data)
+            if images:
+                events = open('data/actual_events.json', encoding='utf-8')
+                f = events.read()
+                afisha_data = json.loads(f)
+
+                new_event = {}
+                try:
+                    new_event["id"] = afisha_data[-1]["id"]
+                except Exception:
+                    new_event["id"] = 1
+                new_event['title'] = form.title.data
+                new_event['description'] = form.description.data
+                new_event['image'] = form.image.data
+                new_event['location'] = form.location.data
+                new_event['ticket_link'] = form.ticket_link.data
+                new_event['is_in_archive'] = False
+                new_event['author_id'] = current_user.id
+                afisha_data.append(new_event)
+                events.close()
+                events = open('data/actual_events.json', 'w', encoding='utf-8')
+                json.dump(afisha_data, events, ensure_ascii=False)
+                events.close()
+                return redirect("/")
+        except Exception:
+            errors.append("Id изображения должно быть числом")
+        else:
+            errors.append("Изображения не существует")
+    return render_template("create_event.html", form=form, additional_errors=errors,
+                               not_registered=get_registred_id(), profile_image=get_registred_image())
+
+@app.route("/add_news", methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = CreateNews()
+    errors = []
+    if not get_is_admin():
+        return redirect("/")
+    if form.validate_on_submit():
+        na = open('data/news_articles.json', encoding='utf-8')
+        f1 = na.read()
+        NA = json.loads(f1)
+
+        new_news = {}
+
+        try:
+            new_news["id"] = NA[-1]["id"]
+        except Exception:
+            new_news["id"] = 1
+
+        new_news['content'] = form.description.data
+        new_news['title'] = form.title.data
+        new_news['is_in_archive'] = False
+        new_news['date'] = (str(datetime.date.today()) + " " + str(datetime.datetime.now().strftime("%H:%M:%S")))
+        NA.append(new_news)
+        na.close()
+        na = open('data/news_articles.json', 'w', encoding='utf-8')
+        json.dump(NA, na, ensure_ascii=False)
+        na.close()
+        return redirect("/")
+    return render_template("create_news.html", form=form, additional_errors=errors,
+                               not_registered=get_registred_id(), profile_image=get_registred_image())
+
+@app.route("/add_concert", methods=['GET', 'POST'])
+@login_required
+def add_concert():
+    form = CreateConcert()
+    if not get_is_admin():
+        return redirect("/")
+    errors = []
+    session = db_session.create_session()
+
+    if form.validate_on_submit():
+        try:
+            int(form.afisha_image.data)
+            images = session.query(Images).filter(Images.id == form.afisha_image.data)
+            if not images:
+                raise Exception
+        except Exception:
+            errors.append("Неверно указан id изображения или оно не существует")
+        try:
+            int(form.video_file.data)
+            video = session.query(Videos).filter(Videos.id == form.video_file.data)
+            if not video:
+                raise Exception
+        except Exception:
+            errors.append("Неверно указан id видео или оно не существует")
+        try:
+            int(form.audio_file.data)
+            audio = session.query(Audios).filter(Audios.id == form.audio_file.data)
+            if not audio:
+                raise Exception
+        except Exception:
+            errors.append("Неверно указан id аудио или оно не существует")
+
+        conc = open('data/concerts.json', encoding='utf-8')
+        f = conc.read()
+        concerts = json.loads(f)
+        conc.close()
+        new_concert = {}
+        try:
+            new_concert["id"] = concerts[-1]["id"]
+        except Exception:
+            new_concert["id"] = 1
+        new_concert['title'] = form.title.data
+        new_concert['afisha_image'] = form.afisha_image.data
+        new_concert['date_time'] = form.date_time.data
+        new_concert['location'] = form.location.data
+        new_concert['audio_file'] = form.audio_file.data
+        new_concert['video_file'] = form.video_file.data
+        concerts.append(new_concert)
+        conc = open('data/concerts.json', "w", encoding='utf-8')
+        json.dump(concerts, conc, ensure_ascii=False)
+        return redirect("/archive")
+    return render_template("create_concert.html", form=form, additional_errors=errors,
+                               not_registered=get_registred_id(), profile_image=get_registred_image())
+
+
 
 if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=PORT, host=SERVER)

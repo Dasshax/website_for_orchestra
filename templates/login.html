@@ -12,13 +12,13 @@
         </div>
         <p>
             {{form.username.label() }}<br>
-            {{ form.username(class="form-control", type="name") }}<br>
+            {{ form.username(class="form-control") }}<br>
             {% for error in form.username.errors %}
                 <h4 style="color:red;">{{ error }}</h4>
             {% endfor %}
         <p>
             {{form.password.label() }}<br>
-            {{ form.password(class="form-control", type="name") }}<br>
+            {{ form.password(class="form-control") }}<br>
             {% for error in form.password.errors %}
                 <h4 style="color:red;">{{ error }}</h4>
             {% endfor %}
