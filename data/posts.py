@@ -4,7 +4,9 @@ from sqlalchemy import orm
 
 import datetime
 
+
 class Posts(SqlAlchemyBase):
+    """Класс для таблицы Posts из бд"""
     __tablename__ = 'posts'
 
     id = Column(Integer, primary_key=True)

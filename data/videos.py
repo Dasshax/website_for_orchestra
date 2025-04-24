@@ -4,6 +4,7 @@ from sqlalchemy import orm
 
 
 class Videos(SqlAlchemyBase):
+    """Класс для таблицы Videos из бд"""
     __tablename__ = 'videos'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

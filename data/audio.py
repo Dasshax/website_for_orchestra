@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from .db_session import SqlAlchemyBase
+from sqlalchemy import Column, Integer, String, ForeignKey
+from data.db_session import SqlAlchemyBase
 from sqlalchemy import orm
 
 
 class Audios(SqlAlchemyBase):
+    """Класс для таблицы Audios из бд"""
     __tablename__ = 'audios'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

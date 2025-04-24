@@ -25,6 +25,7 @@ app.config['SECRET_KEY'] = SECRET_KEY
 
 
 def get_registred_id():
+    """Получение id текущего пользователя. Если не зареган, выдает 0"""
     if current_user.is_authenticated:
         return current_user.id
     else:
@@ -32,6 +33,7 @@ def get_registred_id():
 
 
 def get_registred_image():
+    """Получение изображения профиля пользователя. Если не зареган, выдает billy.jpg"""
     if current_user.is_authenticated:
         if current_user.profile_image:
             return current_user.profile_image
@@ -42,6 +44,7 @@ def get_registred_image():
 
 
 def get_is_admin():
+    """Является ли текущий пользователь админом или нет"""
     if current_user.is_authenticated:
         return current_user.is_admin
     else:
@@ -57,32 +60,37 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/index')
 def index():
+    """Базовая страница сайта"""
     try:
+        # Загружаем новости и мероприятия
         events = open('data/actual_events.json', encoding='utf-8')
         f = events.read()
         afisha_data = json.loads(f)
         if afisha_data:
-            afisha_data = afisha_data[::-1]
+            afisha_data = afisha_data[::-1]  # переворачиваем, чтобы сверху отображались последние мероприятия
         na = open('data/news_articles.json', encoding='utf-8')
         f1 = na.read()
-        NA = json.loads(f1)
-        if NA:
-            NA = NA[::-1]
+        na1 = json.loads(f1)
+        if na1:
+            na1 = na1[::-1]  # Аналогично
         session = db_session.create_session()
         for event in afisha_data:
+            # Заменяем id изображения на путь к изображению
             image = session.query(Images).filter(Images.id == event['image']).first()
             event['image'] = f"static/images/{image.file_name}"
         return render_template('./index.html',
                                afisha=afisha_data,
-                               news=NA, not_registered=get_registred_id(), profile_image=get_registred_image(),
+                               news=na1, not_registered=get_registred_id(), profile_image=get_registred_image(),
                                is_admin=get_is_admin())
     except Exception as err:
+        # Здесь и далее: если случилась ошибка, отправляем пользователя на страницу с ошибкой
         return render_template("error.html", err=err, not_registered=get_registred_id(),
                                profile_image=get_registred_image())
 
 
 @app.route('/support')
 def support():
+    """Страница поддержки"""
     try:
         return render_template('support.html', not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
@@ -92,6 +100,7 @@ def support():
 
 @app.route('/about')
 def about():
+    """Страница о концерте"""
     try:
         return render_template('about.html', not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
@@ -101,6 +110,7 @@ def about():
 
 @app.route('/contacts')
 def contacts():
+    """Страница контакты"""
     try:
         return render_template('contacts.html', not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
@@ -110,14 +120,17 @@ def contacts():
 
 @app.route('/archive')
 def archive():
+    """Страница архив концертов"""
     try:
+        # Загружаем концерты
         conc = open('data/concerts.json', encoding='utf-8')
         f = conc.read()
         concerts = json.loads(f)
         if concerts:
-            concerts = concerts[::-1]
+            concerts = concerts[::-1]  # переворачиваем, чтобы сверху отображались последние
         session = db_session.create_session()
         for event in concerts:
+            # Заменяем id видео, аудио и изображений на путь к ним
             video = session.query(Videos).filter(Videos.id == event['video_file']).first()
             try:
                 event['video_file'] = f"static/videos/{video.file_name}"
@@ -142,16 +155,19 @@ def archive():
 
 @app.route('/actual_events')
 def actual_events():
+    """Страница актуальные мероприятия"""
     try:
+        # Загружаем мероприятия
         events = open('data/actual_events.json', encoding='utf-8')
         f = events.read()
         session = db_session.create_session()
 
         afisha_data = json.loads(f)
         if afisha_data:
-            afisha_data = afisha_data[::-1]
+            afisha_data = afisha_data[::-1]  # переворачиваем, чтобы сначала отображались последние
 
         for event in afisha_data:
+            # Заменяем id изображения на путь к изображению
             image = session.query(Images).filter(Images.id == event['image']).first()
             event['image'] = f"static/images/{image.file_name}"
 
@@ -165,11 +181,13 @@ def actual_events():
 @app.route('/profile/<int:profile_id>')
 def profile(profile_id):
     try:
+        # Получаем пользователя с profile_id
         profile_id = int(profile_id)
         session = db_session.create_session()
         user = session.query(Users).filter(Users.id == profile_id).first()
         data = []
         if user:
+            # получаем данные пользователя
             for key in CONVERT_TO_RUSSIAN.keys():
                 exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
             images = session.query(Images).filter(Images.author_id == profile_id).all()
@@ -201,6 +219,7 @@ def profile(profile_id):
                                    user_id=profile_id,
                                    is_curr_user_admin=get_is_admin())
         else:
+            # Если пользователя с profile_id нет, отправляем на страницу предупреждения
             return render_template('nt_exist.html', id=profile_id, type="Пользователя",
                                    not_registered=get_registred_id(), profile_image=get_registred_image())
     except Exception as err:
@@ -488,13 +507,13 @@ def move_to_archive(typ, id):
         if typ == "article":
             na = open('data/news_articles.json', encoding='utf-8')
             f1 = na.read()
-            NA = json.loads(f1)
-            for k in NA:
+            na1 = json.loads(f1)
+            for k in na1:
                 if id == k['id']:
                     k['is_in_archive'] = True
             na.close()
             na = open('data/news_articles.json', 'w', encoding='utf-8')
-            json.dump(NA, na, ensure_ascii=False)
+            json.dump(na1, na, ensure_ascii=False)
             na.close()
         return redirect("/")
     except Exception as err:
@@ -563,12 +582,12 @@ def add_news():
         if form.validate_on_submit():
             na = open('data/news_articles.json', encoding='utf-8')
             f1 = na.read()
-            NA = json.loads(f1)
+            na1 = json.loads(f1)
 
             new_news = {}
 
             try:
-                new_news["id"] = NA[-1]["id"] + 1
+                new_news["id"] = na1[-1]["id"] + 1
             except Exception:
                 new_news["id"] = 1
 
@@ -576,10 +595,10 @@ def add_news():
             new_news['title'] = form.title.data
             new_news['is_in_archive'] = False
             new_news['date'] = (str(datetime.date.today()) + " " + str(datetime.datetime.now().strftime("%H:%M:%S")))
-            NA.append(new_news)
+            na1.append(new_news)
             na.close()
             na = open('data/news_articles.json', 'w', encoding='utf-8')
-            json.dump(NA, na, ensure_ascii=False)
+            json.dump(na1, na, ensure_ascii=False)
             na.close()
             return redirect("/")
         return render_template("create_news.html", form=form, additional_errors=errors,

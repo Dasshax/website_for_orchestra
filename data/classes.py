@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 
 
 class RegistrationForm(FlaskForm):
+    """Класс для формы регистрации"""
     username = StringField('Имя пользователя:', validators=[DataRequired(message=
                                                                          "Имя пользователя не должно быть пустым!")])
     email = StringField('Email:', validators=[DataRequired(message="Почта не должна быть пустой!"),
@@ -19,6 +20,7 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
+    """Класс для формы входа"""
     username = StringField('Имя пользователя', validators=[DataRequired(message="Поле не должно быть пустым")])
     password = PasswordField('Пароль', validators=[DataRequired(message="Поле не должно быть пустым")])
     remember_me = BooleanField('Запомнить меня')
@@ -26,24 +28,28 @@ class LoginForm(FlaskForm):
 
 
 class UploadFormImage(FlaskForm):
+    """Класс для формы загрузки изображения"""
     file = FileField(validators=[FileRequired(message="Требуется файл"), FileAllowed(
         ['jpg', 'png'], 'Используйте следующие форматы: jpg, png')])
     submit = SubmitField('Загрузить')
 
 
 class UploadFormVideo(FlaskForm):
+    """Класс для формы загрузки видео"""
     file = FileField(validators=[FileRequired(message="Требуется файл"), FileAllowed(
         ['mp4'], 'Используйте следующий формат: mp4')])
     submit = SubmitField('Загрузить')
 
 
 class UploadFormAudio(FlaskForm):
+    """Класс для формы загрузки аудио"""
     file = FileField(validators=[FileRequired(message="Требуется файл"), FileAllowed(
         ['wav', 'mp3'], 'Используйте следующие форматы: wav, mp3')])
     submit = SubmitField('Загрузить')
 
 
 class CreateEvent(FlaskForm):
+    """Класс для формы создания мероприятия"""
     title = StringField('Название:', validators=[DataRequired("Заполните это поле")])
     description = TextAreaField('Описание:', validators=[DataRequired("Заполните это поле")])
     image = IntegerField("Id изображения:", validators=[DataRequired("Заполните это поле")])
@@ -53,12 +59,14 @@ class CreateEvent(FlaskForm):
 
 
 class CreateNews(FlaskForm):
+    """Класс для формы создания новостей"""
     title = StringField('Название:', validators=[DataRequired("Заполните это поле")])
     description = TextAreaField('Описание:', validators=[DataRequired("Заполните это поле")])
     submit = SubmitField('Создать')
 
 
 class CreateConcert(FlaskForm):
+    """Класс для формы создания концертов"""
     title = StringField('Название:', validators=[DataRequired("Заполните это поле")])
     afisha_image = IntegerField("Id изображения:", validators=[DataRequired("Заполните это поле")])
     date_time = StringField('Время концерта:', validators=[DataRequired("Заполните это поле")])

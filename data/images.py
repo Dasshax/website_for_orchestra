@@ -4,6 +4,7 @@ from sqlalchemy import orm
 
 
 class Images(SqlAlchemyBase):
+    """Класс для таблицы Images из бд"""
     __tablename__ = 'images'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

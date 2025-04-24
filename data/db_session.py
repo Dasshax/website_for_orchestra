@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 
 SqlAlchemyBase = orm.declarative_base()
 
-__factory = None
+__FACTORY = None
 
 
 def global_init(db_file):
-    global __factory
+    """Функция для создания сессии для бд"""
+    global __FACTORY
 
-    if __factory:
+    if __FACTORY:
         raise Exception("Здесь этого не должно быть")
 
     if not db_file or not db_file.strip():
@@ -18,7 +19,7 @@ def global_init(db_file):
 
     conn_str = f'sqlite:///{db_file.strip()}?check_same_thread=False'
     engine = sa.create_engine(conn_str, echo=False)
-    __factory = orm.sessionmaker(bind=engine)
+    __FACTORY = orm.sessionmaker(bind=engine)
 
     from . import __all_models
 
@@ -26,5 +27,6 @@ def global_init(db_file):
 
 
 def create_session() -> Session:
-    global __factory
-    return __factory()
+    """Функция для получения сессии"""
+    global __FACTORY
+    return __FACTORY()

@@ -13,6 +13,7 @@ CONVERT_TO_RUSSIAN = {"id": "id", "username": "имя пользователя",
 
 
 class Users(SqlAlchemyBase, UserMixin):
+    """Класс для таблицы Users из бд"""
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
