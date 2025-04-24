@@ -28,7 +28,6 @@ def get_registred_id():
     if current_user.is_authenticated:
         return current_user.id
     else:
-        print(1)
         return 0
 
 
@@ -541,7 +540,6 @@ def add_event():
                     json.dump(afisha_data, events, ensure_ascii=False)
                     events.close()
                     return redirect("/")
-                    print(afisha_data[0]["id"])
                 else:
                     errors.append("Изображения не существует")
             except Exception:
