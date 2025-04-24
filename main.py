@@ -65,12 +65,20 @@ def index():
         # Загружаем новости и мероприятия
         events = open('data/actual_events.json', encoding='utf-8')
         f = events.read()
+        new_afisha_data = []
         afisha_data = json.loads(f)
         if afisha_data:
             afisha_data = afisha_data[::-1]  # переворачиваем, чтобы сверху отображались последние мероприятия
+        for i in afisha_data:
+            if not i["is_in_archive"]:
+                new_afisha_data.append(i)  # создаем новый список с афишей, чтобы исключить мероприятия из архива
         na = open('data/news_articles.json', encoding='utf-8')
         f1 = na.read()
         na1 = json.loads(f1)
+        new_na = []
+        for k in na1:
+            if not k["is_in_archive"]:
+                new_na.append(k)   # Аналогично с new_afisha_data
         if na1:
             na1 = na1[::-1]  # Аналогично
         session = db_session.create_session()
@@ -190,25 +198,32 @@ def profile(profile_id):
             # получаем данные пользователя
             for key in CONVERT_TO_RUSSIAN.keys():
                 exec(f'data.append(((CONVERT_TO_RUSSIAN[key] + ":"), user.{key}))')
+            # получаем изображения пользователя
             images = session.query(Images).filter(Images.author_id == profile_id).all()
             data1 = []
             for i in images:
                 if i.operation_type == "EXIST":
-                    data1.append((i.file_name, i.id, i.date, i.operation_type))
+                    data1.append((i.file_name, i.id, i.date, i.operation_type)) # Если изображение существует,
+                    # добавляем данные о нем
+            # Аналогично для видео и аудио
             videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
             data2 = []
             for i in videos:
-                data2.append((i.file_name, i.id, i.date))
+                if i.operation_type == "EXIST":
+                    data2.append((i.file_name, i.id, i.date))
 
             audio = session.query(Audios).filter(Audios.author_id == profile_id).all()
             data3 = []
 
             for i in audio:
-                data3.append((i.file_name, i.id, i.date))
+                if i.operation_type == "EXIST":
+                    data3.append((i.file_name, i.id, i.date))
+
             if user.profile_image:
                 image_profile = user.profile_image
             else:
                 image_profile = "billy.jpg"
+            # Проверка на возможность редактировать страницу если текущий пользователь админ или владелец профиля
             this_user = False
             if current_user.is_authenticated:
                 if current_user.id == user.id:
@@ -229,13 +244,16 @@ def profile(profile_id):
 
 @app.route('/test')
 def test():
+    """ТЕСТ"""
     session = db_session.create_session()
     return "test"
 
 
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
+    """Регистрация"""
     try:
+        # проверка на реистрацию, если зареган - то выгнать со страницы
         if current_user.is_authenticated:
             return redirect("/")
         form = RegistrationForm()
@@ -243,6 +261,7 @@ def registration():
         if form.validate_on_submit():
             session = db_session.create_session()
             new_user_name = form.username.data
+            # проверки на уникальность
             users = session.query(Users).filter(Users.username == new_user_name).first()
             if users:
                 errors.append("Пользователь с таким именем уже существует.")
@@ -252,6 +271,7 @@ def registration():
                 if users:
                     errors.append("Пользователь с такой почтой уже существует.")
                 else:
+                    # создаем нового пользователя
                     new_user = Users()
                     new_user.username = new_user_name
                     new_user.email = new_user_email
@@ -276,16 +296,20 @@ def registration():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """вход"""
     try:
+        # проверка на реистрацию, если зареган - то выгнать со страницы
         if current_user.is_authenticated:
             return redirect("/")
         form = LoginForm()
         errors = []
         if form.validate_on_submit():
+            # проверяем на правильность имени и пароля
             session = db_session.create_session()
             user = session.query(Users).filter(Users.username == form.username.data).first()
             if user:
                 if check_password_hash(user.password_hash, form.password.data):
+                    # если норм, то входим
                     login_user(user, remember=form.remember_me.data)
                     return redirect("/")
                 else:
@@ -302,6 +326,7 @@ def login():
 @app.route('/my_profile')
 @login_required
 def my_profile():
+    """Оправка пользователя на свою страницу"""
     cur_id = current_user.id
     return redirect(f"profile/{cur_id}")
 
@@ -309,6 +334,7 @@ def my_profile():
 @app.route('/logout')
 @login_required
 def logout():
+    """Выход пользователя"""
     logout_user()
     return redirect("/")
 
@@ -316,18 +342,22 @@ def logout():
 @app.route('/delete_from_<string:redirto>/<string:typ>/<int:del_id>')
 @login_required
 def delete_from(redirto, typ, del_id):
+    """Удаление материалов, redirto - откуда, typ - тип удаляемого ("image", "video", "audio"), id - id удаляемого """
     try:
         session = db_session.create_session()
         redirto = str(redirto)
         if typ == "image":
+            # Получаем изображение по id
             image = session.query(Images).filter(Images.id == del_id).first()
             if image:
-                if (image.author_id == current_user.id) or get_is_admin():
+                if (image.author_id == current_user.id) or get_is_admin(): # Если удаляет загрузивший или админ,
+                    # то удаляем и присваевыем статус "DELETED"
                     image.operation_type = "DELETED"
                     try:
                         os.remove('static/images/' + image.file_name)
                     except Exception as err:
                         print(err)
+        # Аналогично
         if typ == "video":
             video = session.query(Videos).filter(Videos.id == del_id).first()
             if video:
@@ -350,9 +380,12 @@ def delete_from(redirto, typ, del_id):
         session.commit()
 
         if "profile" in redirto:
+            # если с профиля, то возвращаем назад на профиль с id
             past = redirto[redirto.find("_") + 1:]
 
             return redirect(f"/profile/{past}")
+        else:
+            return redirect("/")
     except Exception as err:
         return render_template("error.html", err=err, not_registered=get_registred_id(),
                                profile_image=get_registred_image())
@@ -361,11 +394,13 @@ def delete_from(redirto, typ, del_id):
 @app.route('/load/image/<type>', methods=['GET', 'POST'])
 @login_required
 def load_image(type):
+    """Загрузка изображения, type = ("prf", "adm")"""
     try:
         form = UploadFormImage()
         errors = []
         session = db_session.create_session()
         form_title = ""
+        # определяем для чего загружаем, если для профиля, то type должен быть равным "prf"
         if type == "prf":
             form_title = "профиля"
         if type == "adm":
@@ -373,14 +408,16 @@ def load_image(type):
                 form_title = "использования в материалах сайта"
             else:
                 return redirect("/")
+
         if form.validate_on_submit():
+            # Проверяем на уникальность
             images = session.query(Images).filter(Images.file_name == form.file.data.filename,
                                                   Images.operation_type == "Exist").first()
             if not images:
                 form.file.data.save('static/images/' + form.file.data.filename)
                 user = session.query(Users).filter(Users.id == current_user.id).first()
                 if user:
-                    if type == "prf":
+                    if type == "prf":  # если для профиля, то изменяем profile_image у user, и удаляем старую аватарку
                         if user.profile_image and not get_is_admin():
                             image = session.query(Images).filter(Images.file_name == user.profile_image).first()
                             if image:
@@ -389,6 +426,7 @@ def load_image(type):
                                     os.remove('static/images/' + user.profile_image)
                                 except Exception as err:
                                     print(err)
+                    # Создаем новое изображение
                     last_image = session.query(Images).order_by(Images.id.desc()).first()
                     image = Images()
                     image.id = last_image.id + 1
@@ -398,7 +436,7 @@ def load_image(type):
                     image.author_id = user.id
                     session.merge(image)
                     if type == "prf":
-                        user.profile_image = form.file.data.filename
+                        user.profile_image = form.file.data.filename  # изменяем profile_image у user
                     session.commit()
                     return redirect("/my_profile")
             else:
@@ -415,11 +453,13 @@ def load_image(type):
 @app.route('/load/video', methods=['GET', 'POST'])
 @login_required
 def load_video():
+    """Загрузка видео"""
     try:
+        # Аналогично с load_image, только без изображения профиля
         form = UploadFormVideo()
         errors = []
         session = db_session.create_session()
-        if not get_is_admin():
+        if not get_is_admin():  # если не админ, то выгоняем со страницы
             return redirect("/")
         if form.validate_on_submit():
             videos = session.query(Videos).filter(Videos.file_name == form.file.data.filename,
@@ -452,11 +492,13 @@ def load_video():
 @app.route('/load/audio', methods=['GET', 'POST'])
 @login_required
 def load_audio():
+    """Загрузка аудио"""
     try:
+        # аналогично с load_video
         form = UploadFormAudio()
         errors = []
         session = db_session.create_session()
-        if not get_is_admin():
+        if not get_is_admin():  # если не админ, то выгоняем со страницы
             return redirect("/")
         if form.validate_on_submit():
             audios = session.query(Audios).filter(Audios.file_name == form.file.data.filename,
@@ -489,17 +531,19 @@ def load_audio():
 @app.route("/move_to_archive_<typ>/<int:id>")
 @login_required
 def move_to_archive(typ, id):
+    """Отправление новости или мероприятия в архив, typ = ("event", "article")"""
     try:
         if not get_is_admin():
-            return redirect("/")
+            return redirect("/")  # если не админ, то выгоняем со страницы
 
         if typ == "event":
+            # Загружаем события
             events = open('data/actual_events.json', encoding='utf-8')
             f = events.read()
             afisha_data = json.loads(f)
-            for k in afisha_data:
+            for k in afisha_data:  # перебираем все новости
                 if id == k['id']:
-                    k['is_in_archive'] = True
+                    k['is_in_archive'] = True  # Если нашли новость, то устанавливаем параметр is_in_archive на true
             events.close()
             events = open('data/actual_events.json', 'w', encoding='utf-8')
             json.dump(afisha_data, events, ensure_ascii=False)
