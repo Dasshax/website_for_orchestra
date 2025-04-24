@@ -78,7 +78,7 @@ def index():
         new_na = []
         for k in na1:
             if not k["is_in_archive"]:
-                new_na.append(k)   # Аналогично с new_afisha_data
+                new_na.append(k)  # Аналогично с new_afisha_data
         if na1:
             na1 = na1[::-1]  # Аналогично
         session = db_session.create_session()
@@ -203,7 +203,7 @@ def profile(profile_id):
             data1 = []
             for i in images:
                 if i.operation_type == "EXIST":
-                    data1.append((i.file_name, i.id, i.date, i.operation_type)) # Если изображение существует,
+                    data1.append((i.file_name, i.id, i.date, i.operation_type))  # Если изображение существует,
                     # добавляем данные о нем
             # Аналогично для видео и аудио
             videos = session.query(Videos).filter(Videos.author_id == profile_id).all()
@@ -253,7 +253,7 @@ def test():
 def registration():
     """Регистрация"""
     try:
-        # проверка на реистрацию, если зареган - то выгнать со страницы
+        # проверка на регистрацию, если зареган - то выгнать со страницы
         if current_user.is_authenticated:
             return redirect("/")
         form = RegistrationForm()
@@ -298,7 +298,7 @@ def registration():
 def login():
     """вход"""
     try:
-        # проверка на реистрацию, если зареган - то выгнать со страницы
+        # проверка на регистрацию, если зареган - то выгнать со страницы
         if current_user.is_authenticated:
             return redirect("/")
         form = LoginForm()
@@ -350,8 +350,8 @@ def delete_from(redirto, typ, del_id):
             # Получаем изображение по id
             image = session.query(Images).filter(Images.id == del_id).first()
             if image:
-                if (image.author_id == current_user.id) or get_is_admin(): # Если удаляет загрузивший или админ,
-                    # то удаляем и присваевыем статус "DELETED"
+                if (image.author_id == current_user.id) or get_is_admin():  # Если удаляет загрузивший или админ,
+                    # то удаляем и присваиваем статус "DELETED"
                     image.operation_type = "DELETED"
                     try:
                         os.remove('static/images/' + image.file_name)
@@ -546,9 +546,10 @@ def move_to_archive(typ, id):
                     k['is_in_archive'] = True  # Если нашли новость, то устанавливаем параметр is_in_archive на true
             events.close()
             events = open('data/actual_events.json', 'w', encoding='utf-8')
-            json.dump(afisha_data, events, ensure_ascii=False)
+            json.dump(afisha_data, events, ensure_ascii=False)  # сбрасываем json обратно в файл
             events.close()
         if typ == "article":
+            # аналогично с событиями
             na = open('data/news_articles.json', encoding='utf-8')
             f1 = na.read()
             na1 = json.loads(f1)
@@ -568,28 +569,32 @@ def move_to_archive(typ, id):
 @app.route("/add_event", methods=['GET', 'POST'])
 @login_required
 def add_event():
+    """Добавить событие"""
     try:
         form = CreateEvent()
         errors = []
         session = db_session.create_session()
 
         if not get_is_admin():
-            return redirect("/")
+            return redirect("/")  # если не админ, то выгоняем со страницы
 
         if form.validate_on_submit():
             try:
                 int(form.image.data)
                 images = session.query(Images).filter(Images.id == form.image.data)
+                # Если изображение существует
                 if images:
+                    # Считываем события
                     events = open('data/actual_events.json', encoding='utf-8')
                     f = events.read()
                     afisha_data = json.loads(f)
-
+                    # создаем новое событие
                     new_event = {}
                     try:
-                        new_event["id"] = afisha_data[-1]["id"] + 1
+                        new_event["id"] = afisha_data[-1]["id"] + 1  # Находим последнее событие, присваиваем событию id
+                        # равное id последнему плюс один
                     except Exception:
-                        new_event["id"] = 1
+                        new_event["id"] = 1  # Если событий нет, то присваиваем id, равное 1
                     new_event['title'] = form.title.data
                     new_event['description'] = form.description.data
                     new_event['image'] = form.image.data
@@ -597,10 +602,10 @@ def add_event():
                     new_event['ticket_link'] = form.ticket_link.data
                     new_event['is_in_archive'] = False
                     new_event['author_id'] = current_user.id
-                    afisha_data.append(new_event)
+                    afisha_data.append(new_event)  # добавляем в json
                     events.close()
                     events = open('data/actual_events.json', 'w', encoding='utf-8')
-                    json.dump(afisha_data, events, ensure_ascii=False)
+                    json.dump(afisha_data, events, ensure_ascii=False)  # Сбрасываем на диск
                     events.close()
                     return redirect("/")
                 else:
@@ -618,7 +623,9 @@ def add_event():
 @app.route("/add_news", methods=['GET', 'POST'])
 @login_required
 def add_news():
+    """Создание новости"""
     try:
+        # Аналогично с add_event
         form = CreateNews()
         errors = []
         if not get_is_admin():
@@ -655,7 +662,9 @@ def add_news():
 @app.route("/add_concert", methods=['GET', 'POST'])
 @login_required
 def add_concert():
+    """Создаем концерт"""
     try:
+        # Аналогично с add_news
         form = CreateConcert()
         if not get_is_admin():
             return redirect("/")
@@ -663,6 +672,7 @@ def add_concert():
         session = db_session.create_session()
 
         if form.validate_on_submit():
+            # Проверяем на существование видео, аудио и изображений, также на корректность введенных данных
             try:
                 int(form.afisha_image.data)
                 images = session.query(Images).filter(Images.id == form.afisha_image.data)
@@ -713,4 +723,5 @@ def add_concert():
 
 
 if __name__ == '__main__':
+    # Запускаем сервер
     app.run(port=PORT, host=SERVER)
